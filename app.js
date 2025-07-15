@@ -1,0 +1,523 @@
+// Main Application Entry Point
+// This file orchestrates the entire application and manages module coordination
+
+// Core module imports
+import { 
+  settings,
+  availableExams,
+  currentExam,
+  currentQuestions,
+  currentQuestionIndex,
+  selectedAnswers,
+  isValidated,
+  isHighlightEnabled,
+  questionStartTime,
+  updateAvailableExams,
+  updateCurrentExam,
+  updateCurrentQuestions,
+  updateCurrentQuestionIndex,
+  updateSelectedAnswers,
+  updateIsValidated,
+  updateIsHighlightEnabled,
+  updateQuestionStartTime,
+  resetQuestionState
+} from './modules/state.js';
+
+import {
+  formatTime,
+  formatFileSize,
+  truncateText,
+  convertUrlsToLinks,
+  formatCommentText,
+  animateNumberChange,
+  addHapticFeedback,
+  renderMarkdown,
+  processEmbeddedImages,
+  debounce,
+  safeLocalStorageGet,
+  safeLocalStorageSet
+} from './modules/utils.js';
+
+import {
+  loadExam,
+  loadChunk,
+  preloadChunks,
+  getChunkIdForQuestion,
+  ensureQuestionLoaded,
+  assembleCurrentQuestions,
+  createChunksForExamData,
+  loadAvailableExams,
+  validateExamData,
+  getExamStats
+} from './modules/data.js';
+
+import {
+  ExamSession,
+  QuestionAttempt,
+  saveStatistics,
+  loadStatistics,
+  recalculateTotalStats,
+  startExamSession,
+  endCurrentSession,
+  trackQuestionAttempt,
+  updateSessionStats,
+  resetAllStatistics,
+  cleanCorruptedStatistics,
+  exportStatistics,
+  getSessionSummary
+} from './modules/statistics.js';
+
+import {
+  loadSettings,
+  saveSettings,
+  applyTheme,
+  toggleDarkMode,
+  updateToolbarVisibility,
+  updateTooltipVisibility,
+  updateAdvancedSearchVisibility,
+  updateMainProgressBarVisibility,
+  getSetting,
+  setSetting,
+  resetSettings,
+  setupSettingsEventListeners,
+  exportSettings,
+  importSettings
+} from './modules/settings.js';
+
+// Application class for managing the entire app lifecycle
+class ExamViewerApp {
+  constructor() {
+    this.initialized = false;
+    this.modules = new Map();
+    this.eventListeners = new Map();
+  }
+
+  // Initialize the application
+  async init() {
+    try {
+      console.log('🚀 Initializing Exams Viewer App...');
+
+      // Load core data first
+      await this.loadCoreData();
+
+      // Initialize modules in order
+      await this.initializeModules();
+
+      // Setup event listeners
+      this.setupEventListeners();
+
+      // Setup UI
+      this.setupUI();
+
+      // Mark as initialized
+      this.initialized = true;
+
+      console.log('✅ Exams Viewer App initialized successfully');
+    } catch (error) {
+      console.error('❌ Failed to initialize app:', error);
+      this.showError('Failed to initialize application: ' + error.message);
+    }
+  }
+
+  // Load core application data
+  async loadCoreData() {
+    try {
+      // Load available exams
+      const exams = await loadAvailableExams();
+      updateAvailableExams(exams);
+
+      // Load user settings
+      loadSettings();
+
+      // Load statistics
+      loadStatistics();
+
+      console.log(`📋 Loaded ${Object.keys(availableExams).length} exams`);
+    } catch (error) {
+      console.error('Error loading core data:', error);
+      throw error;
+    }
+  }
+
+  // Initialize all modules
+  async initializeModules() {
+    // Register modules
+    this.modules.set('ui', await this.loadModule('./modules/ui.js'));
+    this.modules.set('navigation', await this.loadModule('./modules/navigation.js'));
+    this.modules.set('favorites', await this.loadModule('./modules/favorites.js'));
+    this.modules.set('search', await this.loadModule('./modules/search.js'));
+    this.modules.set('export', await this.loadModule('./modules/export.js'));
+
+    // Initialize each module
+    for (const [name, module] of this.modules) {
+      if (module && typeof module.init === 'function') {
+        try {
+          await module.init();
+          console.log(`✅ Module ${name} initialized`);
+        } catch (error) {
+          console.error(`❌ Failed to initialize module ${name}:`, error);
+        }
+      }
+    }
+  }
+
+  // Dynamically load modules
+  async loadModule(path) {
+    try {
+      const module = await import(path);
+      return module;
+    } catch (error) {
+      console.warn(`⚠️ Module ${path} not available, using fallback functions`);
+      return null;
+    }
+  }
+
+  // Setup main event listeners
+  setupEventListeners() {
+    // Settings event listeners
+    setupSettingsEventListeners();
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', this.handleKeyboardShortcuts.bind(this));
+
+    // Window resize handler
+    window.addEventListener('resize', debounce(this.handleResize.bind(this), 250));
+
+    // Page visibility change handler
+    document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
+
+    // Before unload handler for saving state
+    window.addEventListener('beforeunload', this.handleBeforeUnload.bind(this));
+
+    console.log('🎯 Event listeners setup complete');
+  }
+
+  // Setup initial UI state
+  setupUI() {
+    // Populate exam dropdown
+    this.populateExamDropdown();
+
+    // Apply initial theme
+    applyTheme(settings.darkMode);
+
+    // Update UI visibility based on settings
+    updateToolbarVisibility();
+    updateTooltipVisibility();
+    updateAdvancedSearchVisibility();
+    updateMainProgressBarVisibility();
+
+    // Setup mobile touches if module is available
+    const uiModule = this.modules.get('ui');
+    if (uiModule && uiModule.setupTouchGestures) {
+      uiModule.setupTouchGestures();
+    }
+
+    console.log('🎨 UI setup complete');
+  }
+
+  // Populate exam dropdown
+  populateExamDropdown() {
+    const examSelect = document.getElementById("examCode");
+    if (!examSelect) return;
+
+    // Clear existing options
+    examSelect.innerHTML = '<option value="">Select an exam...</option>';
+
+    // Sort exams alphabetically (critical business rule)
+    const sortedExamCodes = Object.keys(availableExams).sort((a, b) => a.localeCompare(b));
+
+    sortedExamCodes.forEach(examCode => {
+      const exam = availableExams[examCode];
+      const option = document.createElement('option');
+      option.value = examCode;
+      option.textContent = `${examCode} - ${exam.name || examCode}`;
+      examSelect.appendChild(option);
+    });
+
+    console.log(`📋 Populated dropdown with ${sortedExamCodes.length} exams`);
+  }
+
+  // Handle keyboard shortcuts
+  handleKeyboardShortcuts(event) {
+    // Don't trigger shortcuts when typing in input fields
+    if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+      return;
+    }
+
+    const navigationModule = this.modules.get('navigation');
+    if (navigationModule && navigationModule.handleKeyboardShortcuts) {
+      navigationModule.handleKeyboardShortcuts(event);
+    }
+  }
+
+  // Handle window resize
+  handleResize() {
+    const uiModule = this.modules.get('ui');
+    if (uiModule && uiModule.handleResize) {
+      uiModule.handleResize();
+    }
+  }
+
+  // Handle page visibility change
+  handleVisibilityChange() {
+    if (document.hidden) {
+      // Page is hidden, save current state
+      this.saveCurrentState();
+    } else {
+      // Page is visible again, resume if needed
+      this.resumeFromState();
+    }
+  }
+
+  // Handle before page unload
+  handleBeforeUnload() {
+    this.saveCurrentState();
+  }
+
+  // Save current application state
+  saveCurrentState() {
+    try {
+      saveSettings();
+      saveStatistics();
+      
+      // Save current question position if enabled
+      if (settings.autoSavePosition && currentExam) {
+        const navigationModule = this.modules.get('navigation');
+        if (navigationModule && navigationModule.saveResumePosition) {
+          navigationModule.saveResumePosition(currentExam.code || currentExam.exam_code, currentQuestionIndex);
+        }
+      }
+    } catch (error) {
+      console.error('Error saving application state:', error);
+    }
+  }
+
+  // Resume from saved state
+  resumeFromState() {
+    // This could be enhanced to resume exam position, etc.
+    console.log('📥 Resuming application state');
+  }
+
+  // Load an exam (main entry point for exam loading)
+  async loadExam(examCode) {
+    if (!examCode || !availableExams[examCode]) {
+      this.showError(`Exam code "${examCode}" not found`);
+      return false;
+    }
+
+    try {
+      this.showLoading(true);
+
+      // Start new session
+      const examName = availableExams[examCode].name || examCode;
+      startExamSession(examCode, examName);
+
+      // Load exam data
+      await loadExam(examCode);
+
+      // Update UI
+      updateCurrentQuestionIndex(0);
+      resetQuestionState();
+
+      // Display first question
+      const uiModule = this.modules.get('ui');
+      if (uiModule && uiModule.displayCurrentQuestion) {
+        await uiModule.displayCurrentQuestion();
+      }
+
+      // Update navigation
+      const navigationModule = this.modules.get('navigation');
+      if (navigationModule && navigationModule.updateProgressSidebar) {
+        navigationModule.updateProgressSidebar();
+      }
+
+      // Check for resume position
+      if (settings.enableResumePosition && navigationModule && navigationModule.checkResumePosition) {
+        navigationModule.checkResumePosition(examCode);
+      }
+
+      this.showLoading(false);
+      return true;
+    } catch (error) {
+      this.showLoading(false);
+      this.showError(`Failed to load exam: ${error.message}`);
+      return false;
+    }
+  }
+
+  // Navigate to a specific question
+  async navigateToQuestion(questionIndex) {
+    if (questionIndex < 0 || questionIndex >= currentQuestions.length) {
+      return false;
+    }
+
+    try {
+      // Ensure question is loaded (for lazy loading)
+      if (currentExam && currentExam.isChunked) {
+        const loaded = await ensureQuestionLoaded(currentExam.code || currentExam.exam_code, questionIndex);
+        if (!loaded) {
+          this.showError('Failed to load question data');
+          return false;
+        }
+      }
+
+      // Update state
+      updateCurrentQuestionIndex(questionIndex);
+      resetQuestionState();
+
+      // Update UI
+      const uiModule = this.modules.get('ui');
+      if (uiModule && uiModule.displayCurrentQuestion) {
+        await uiModule.displayCurrentQuestion();
+      }
+
+      // Update navigation
+      const navigationModule = this.modules.get('navigation');
+      if (navigationModule) {
+        if (navigationModule.addToNavigationHistory) {
+          navigationModule.addToNavigationHistory(questionIndex);
+        }
+        if (navigationModule.updateProgressSidebar) {
+          navigationModule.updateProgressSidebar();
+        }
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error navigating to question:', error);
+      this.showError('Failed to navigate to question');
+      return false;
+    }
+  }
+
+  // Validate current answers
+  validateAnswers() {
+    if (!currentQuestions[currentQuestionIndex] || isValidated) {
+      return;
+    }
+
+    const question = currentQuestions[currentQuestionIndex];
+    const correctAnswers = question.most_voted || question.correct_answers || [];
+    const userAnswers = Array.from(selectedAnswers);
+    
+    // Determine if answer is correct
+    const isCorrect = this.checkAnswerCorrectness(userAnswers, correctAnswers);
+    
+    // Calculate time spent
+    const timeSpent = questionStartTime ? Math.floor((Date.now() - questionStartTime) / 1000) : 0;
+    
+    // Track the attempt
+    trackQuestionAttempt(
+      question.question_number,
+      correctAnswers,
+      userAnswers,
+      isCorrect,
+      timeSpent,
+      isHighlightEnabled
+    );
+
+    // Update state
+    updateIsValidated(true);
+
+    // Update UI
+    const uiModule = this.modules.get('ui');
+    if (uiModule && uiModule.showValidationResults) {
+      uiModule.showValidationResults(correctAnswers);
+    }
+
+    // Update navigation sidebar
+    const navigationModule = this.modules.get('navigation');
+    if (navigationModule && navigationModule.updateProgressSidebar) {
+      navigationModule.updateProgressSidebar();
+    }
+  }
+
+  // Check if user answers are correct
+  checkAnswerCorrectness(userAnswers, correctAnswers) {
+    if (!Array.isArray(correctAnswers)) {
+      const correctArray = typeof correctAnswers === 'string' ? correctAnswers.split('') : [];
+      return this.arraysEqual(userAnswers.sort(), correctArray.sort());
+    }
+    return this.arraysEqual(userAnswers.sort(), correctAnswers.sort());
+  }
+
+  // Helper function to compare arrays
+  arraysEqual(a, b) {
+    return a.length === b.length && a.every((val, index) => val === b[index]);
+  }
+
+  // Show loading indicator
+  showLoading(show) {
+    const loader = document.getElementById('loadingIndicator');
+    if (loader) {
+      loader.style.display = show ? 'flex' : 'none';
+    }
+  }
+
+  // Show error message
+  showError(message) {
+    console.error('Error:', message);
+    
+    // Try to use UI module's error display
+    const uiModule = this.modules.get('ui');
+    if (uiModule && uiModule.showError) {
+      uiModule.showError(message);
+    } else {
+      // Fallback to alert
+      alert('Error: ' + message);
+    }
+  }
+
+  // Show success message
+  showSuccess(message) {
+    console.log('Success:', message);
+    
+    // Try to use UI module's success display
+    const uiModule = this.modules.get('ui');
+    if (uiModule && uiModule.showSuccess) {
+      uiModule.showSuccess(message);
+    }
+  }
+
+  // Get module instance
+  getModule(name) {
+    return this.modules.get(name);
+  }
+
+  // Check if app is initialized
+  isInitialized() {
+    return this.initialized;
+  }
+}
+
+// Create global app instance
+const app = new ExamViewerApp();
+
+// Global functions for backward compatibility with existing HTML
+window.loadExam = (examCode) => app.loadExam(examCode);
+window.navigateToQuestion = (index) => app.navigateToQuestion(index);
+window.validateAnswers = () => app.validateAnswers();
+window.toggleDarkMode = toggleDarkMode;
+window.saveSettings = saveSettings;
+window.resetAllStatistics = resetAllStatistics;
+window.exportStatistics = exportStatistics;
+
+// Expose app instance globally for debugging
+window.app = app;
+
+// Expose core functions globally for backward compatibility
+window.formatTime = formatTime;
+window.formatFileSize = formatFileSize;
+window.truncateText = truncateText;
+window.addHapticFeedback = addHapticFeedback;
+window.processEmbeddedImages = processEmbeddedImages;
+
+// Initialize app when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => app.init());
+} else {
+  app.init();
+}
+
+// Export app instance for ES6 modules
+export default app;
