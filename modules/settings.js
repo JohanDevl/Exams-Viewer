@@ -260,13 +260,13 @@ export function resetSettings() {
 }
 
 // Import functions that may not be available initially
-let updateHighlightButton, updateAdvancedSearchVisibility, updateMainProgressBarVisibility;
+let updateHighlightButton, updateAdvancedSearchVisibilityRef, updateMainProgressBarVisibilityRef;
 
 // Initialize settings references to UI functions
 export function initializeSettingsReferences(uiFunctions) {
   updateHighlightButton = uiFunctions.updateHighlightButton;
-  updateAdvancedSearchVisibility = uiFunctions.updateAdvancedSearchVisibility;
-  updateMainProgressBarVisibility = uiFunctions.updateMainProgressBarVisibility;
+  updateAdvancedSearchVisibilityRef = uiFunctions.updateAdvancedSearchVisibility;
+  updateMainProgressBarVisibilityRef = uiFunctions.updateMainProgressBarVisibility;
 }
 
 // Setup settings event listeners

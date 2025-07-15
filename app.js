@@ -132,7 +132,7 @@ class ExamViewerApp {
       // Load statistics
       loadStatistics();
 
-      console.log(`📋 Loaded ${Object.keys(availableExams).length} exams`);
+      console.log(`📋 Loaded ${Object.keys(exams).length} exams`);
     } catch (error) {
       console.error('Error loading core data:', error);
       throw error;
@@ -194,9 +194,6 @@ class ExamViewerApp {
 
   // Setup initial UI state
   setupUI() {
-    // Populate exam dropdown
-    this.populateExamDropdown();
-
     // Apply initial theme
     applyTheme(settings.darkMode);
 
@@ -206,11 +203,17 @@ class ExamViewerApp {
     updateAdvancedSearchVisibility();
     updateMainProgressBarVisibility();
 
+    // Setup modal close buttons
+    this.setupModalCloseButtons();
+
     // Setup mobile touches if module is available
     const uiModule = this.modules.get('ui');
     if (uiModule && uiModule.setupTouchGestures) {
       uiModule.setupTouchGestures();
     }
+
+    // Populate exam dropdown (after data is loaded)
+    this.populateExamDropdown();
 
     console.log('🎨 UI setup complete');
   }
@@ -218,10 +221,18 @@ class ExamViewerApp {
   // Populate exam dropdown
   populateExamDropdown() {
     const examSelect = document.getElementById("examCode");
-    if (!examSelect) return;
+    if (!examSelect) {
+      console.warn('❌ Exam select element not found');
+      return;
+    }
 
     // Clear existing options
     examSelect.innerHTML = '<option value="">Select an exam...</option>';
+
+    if (Object.keys(availableExams).length === 0) {
+      console.warn('⚠️ No available exams found');
+      return;
+    }
 
     // Sort exams alphabetically (critical business rule)
     const sortedExamCodes = Object.keys(availableExams).sort((a, b) => a.localeCompare(b));
@@ -488,19 +499,139 @@ class ExamViewerApp {
   isInitialized() {
     return this.initialized;
   }
+
+  // Display statistics modal
+  displayStatistics() {
+    const modal = document.getElementById('statisticsModal');
+    if (modal) {
+      modal.style.display = 'flex';
+      this.updateStatisticsDisplay();
+    }
+  }
+
+  // Update statistics display
+  updateStatisticsDisplay() {
+    // This will be implemented when we complete the UI module
+    console.log('Updating statistics display...');
+  }
+
+  // Toggle revision mode
+  toggleRevisionMode() {
+    const favoritesModule = this.modules.get('favorites');
+    if (favoritesModule && favoritesModule.toggleRevisionMode) {
+      favoritesModule.toggleRevisionMode();
+    } else {
+      console.log('Revision mode toggle - stub implementation');
+    }
+  }
+
+  // Show export modal
+  showExportModal() {
+    const modal = document.getElementById('exportOptionsModal');
+    if (modal) {
+      modal.style.display = 'flex';
+    } else {
+      console.log('Export modal - stub implementation');
+    }
+  }
+
+  // Toggle legal info
+  toggleLegalInfo() {
+    const legalInfo = document.getElementById('legal-info');
+    if (legalInfo) {
+      const isVisible = legalInfo.style.display !== 'none';
+      legalInfo.style.display = isVisible ? 'none' : 'block';
+    }
+  }
+
+  // Show keyboard help
+  showKeyboardHelp() {
+    const modal = document.getElementById('keyboardHelpModal');
+    if (modal) {
+      modal.style.display = 'flex';
+    } else {
+      console.log('Keyboard help - stub implementation');
+    }
+  }
+
+  // Go to home (reset exam)
+  goToHome() {
+    updateCurrentExam(null);
+    updateCurrentQuestions([]);
+    updateCurrentQuestionIndex(0);
+    resetQuestionState();
+    
+    // Hide main UI sections
+    const mainSection = document.querySelector('.main-content');
+    if (mainSection) {
+      mainSection.style.display = 'none';
+    }
+    
+    // Show home section
+    const homeSection = document.querySelector('.container > .header');
+    if (homeSection) {
+      homeSection.parentElement.style.display = 'block';
+    }
+    
+    console.log('Returned to home');
+  }
+
+  // Setup modal close buttons
+  setupModalCloseButtons() {
+    // Close button selectors and their modal IDs
+    const modalCloseMap = {
+      'closeStatisticsModal': 'statisticsModal',
+      'closeSettingsModal': 'settingsModal', 
+      'closeExportModal': 'exportOptionsModal',
+      'closeChangelogModal': 'changelogModal',
+      'closeKeyboardHelpModal': 'keyboardHelpModal'
+    };
+
+    Object.entries(modalCloseMap).forEach(([buttonId, modalId]) => {
+      const button = document.getElementById(buttonId);
+      const modal = document.getElementById(modalId);
+      
+      if (button && modal) {
+        button.addEventListener('click', () => {
+          modal.style.display = 'none';
+        });
+      }
+    });
+
+    // Also close modals when clicking outside
+    const modals = document.querySelectorAll('[id$="Modal"]');
+    modals.forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+    });
+  }
 }
 
 // Create global app instance
 const app = new ExamViewerApp();
 
+// HYBRID MODE: Commented out to avoid conflicts with script.js
+// These will be gradually uncommented as we migrate functionality
+
 // Global functions for backward compatibility with existing HTML
-window.loadExam = (examCode) => app.loadExam(examCode);
-window.navigateToQuestion = (index) => app.navigateToQuestion(index);
-window.validateAnswers = () => app.validateAnswers();
-window.toggleDarkMode = toggleDarkMode;
-window.saveSettings = saveSettings;
-window.resetAllStatistics = resetAllStatistics;
-window.exportStatistics = exportStatistics;
+// window.loadExam = (examCode) => app.loadExam(examCode);
+// window.navigateToQuestion = (index) => app.navigateToQuestion(index);
+// window.validateAnswers = () => app.validateAnswers();
+// window.toggleDarkMode = toggleDarkMode;
+// window.saveSettings = saveSettings;
+// window.resetAllStatistics = resetAllStatistics;
+// window.exportStatistics = exportStatistics;
+
+// Additional global functions for UI compatibility
+// window.displayStatistics = () => app.displayStatistics();
+// window.toggleRevisionMode = () => app.toggleRevisionMode();
+// window.showExportModal = () => app.showExportModal();
+// window.toggleLegalInfo = () => app.toggleLegalInfo();
+// window.showKeyboardHelp = () => app.showKeyboardHelp();
+// window.goToHome = () => app.goToHome();
 
 // Expose app instance globally for debugging
 window.app = app;
@@ -512,12 +643,15 @@ window.truncateText = truncateText;
 window.addHapticFeedback = addHapticFeedback;
 window.processEmbeddedImages = processEmbeddedImages;
 
+// HYBRID MODE: Disable auto-initialization to avoid conflicts with script.js
 // Initialize app when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => app.init());
-} else {
-  app.init();
-}
+// if (document.readyState === 'loading') {
+//   document.addEventListener('DOMContentLoaded', () => app.init());
+// } else {
+//   app.init();
+// }
+
+// Manual initialization available via: window.app.init()
 
 // Export app instance for ES6 modules
 export default app;

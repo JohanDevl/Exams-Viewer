@@ -320,8 +320,19 @@ export async function loadAvailableExams() {
     const exams = {};
     
     if (data.exams && Array.isArray(data.exams)) {
+      // Handle both old format (array of strings) and new format (array of objects)
       data.exams.forEach(exam => {
-        exams[exam.code] = exam;
+        if (typeof exam === 'string') {
+          // Old format: just exam codes
+          exams[exam] = {
+            code: exam,
+            name: exam, // Use code as name for now
+            question_count: 0
+          };
+        } else if (typeof exam === 'object' && exam.code) {
+          // New format: objects with details
+          exams[exam.code] = exam;
+        }
       });
     }
 
