@@ -1,18 +1,8 @@
 // Data Management Module
 // This module handles all data loading operations including lazy loading and chunking
 
-import { 
-  availableExams, 
-  lazyLoadingConfig, 
-  allQuestions, 
-  currentQuestions,
-  updateCurrentExam,
-  updateAllQuestions,
-  updateCurrentQuestions,
-  updateLazyLoadingConfig
-} from './state.js';
-
-import { processEmbeddedImages } from './utils.js';
+// HYBRID MODE: Simplified imports to avoid circular dependencies
+// For hybrid mode, we make this module more autonomous
 
 // Check if an exam has chunked version for lazy loading
 async function checkForChunkedExam(examCode) {

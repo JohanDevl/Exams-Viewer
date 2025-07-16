@@ -459,6 +459,25 @@ function decompressData(compressedData) {
 }
 
 function saveStatistics() {
+  // HYBRID MIGRATION: Use statistics module from app.js
+  if (window.app && window.app.getModule) {
+    const statsModule = window.app.getModule('statistics');
+    if (statsModule && statsModule.saveStatistics) {
+      try {
+        statsModule.saveStatistics();
+        return;
+      } catch (error) {
+        console.warn('Statistics module failed, falling back to legacy method:', error);
+      }
+    }
+  }
+  
+  // Fallback to legacy method
+  saveStatisticsLegacy();
+}
+
+// Legacy implementation (renamed)
+function saveStatisticsLegacy() {
   try {
     // Use simple JSON stringify to avoid compression corruption issues
     const dataToSave = JSON.stringify(statistics);
@@ -565,6 +584,26 @@ function clearCorruptedData() {
 }
 
 function loadStatistics() {
+  // HYBRID MIGRATION: Use statistics module from app.js
+  if (window.app && window.app.getModule) {
+    const statsModule = window.app.getModule('statistics');
+    if (statsModule && statsModule.loadStatistics) {
+      try {
+        statsModule.loadStatistics();
+        console.log('📊 [STATISTICS MODULE] Statistics loaded via modern module');
+        return;
+      } catch (error) {
+        console.warn('Statistics module failed, falling back to legacy method:', error);
+      }
+    }
+  }
+  
+  // Fallback to legacy method
+  loadStatisticsLegacy();
+}
+
+// Legacy implementation (renamed)
+function loadStatisticsLegacy() {
   try {
     const savedStats = localStorage.getItem("examViewerStatistics");
     if (savedStats) {
@@ -2795,6 +2834,26 @@ async function discoverAvailableExams() {
 
 // Load settings from localStorage
 function loadSettings() {
+  // HYBRID MIGRATION: Use settings module from app.js
+  if (window.app && window.app.getModule) {
+    const settingsModule = window.app.getModule('settings');
+    if (settingsModule && settingsModule.loadSettings) {
+      try {
+        settingsModule.loadSettings();
+        console.log('⚙️ [SETTINGS MODULE] Settings loaded via modern module');
+        return;
+      } catch (error) {
+        console.warn('Settings module failed, falling back to legacy method:', error);
+      }
+    }
+  }
+  
+  // Fallback to legacy method
+  loadSettingsLegacy();
+}
+
+// Legacy implementation (renamed)
+function loadSettingsLegacy() {
   const savedSettings = localStorage.getItem("examViewerSettings");
   if (savedSettings) {
     settings = { ...settings, ...JSON.parse(savedSettings) };
@@ -2843,6 +2902,36 @@ function loadSettings() {
 
 // Save settings to localStorage
 function saveSettings() {
+  console.log('🔍 [DEBUG] saveSettings() called from script.js');
+  
+  // HYBRID MIGRATION: Use settings module from app.js
+  if (window.app && window.app.getModule) {
+    const settingsModule = window.app.getModule('settings');
+    console.log('🔍 [DEBUG] Settings module found:', !!settingsModule);
+    
+    if (settingsModule && settingsModule.saveSettings) {
+      try {
+        console.log('✅ [HYBRID] Using modern settings module');
+        settingsModule.saveSettings();
+        console.log('⚙️ [SETTINGS MODULE] Settings saved via modern module');
+        return;
+      } catch (error) {
+        console.warn('Settings module failed, falling back to legacy method:', error);
+      }
+    } else {
+      console.warn('🔍 [DEBUG] Settings module or saveSettings function not available');
+    }
+  } else {
+    console.warn('🔍 [DEBUG] window.app or getModule not available');
+  }
+  
+  // Fallback to legacy method
+  console.log('⚠️ [HYBRID] Falling back to legacy settings');
+  saveSettingsLegacy();
+}
+
+// Legacy implementation (renamed)
+function saveSettingsLegacy() {
   settings.showDiscussionDefault = document.getElementById(
     "showDiscussionDefault"
   ).checked;
@@ -2938,6 +3027,25 @@ function saveSettings() {
 
 // Apply dark/light theme
 function applyTheme(isDark) {
+  // HYBRID MIGRATION: Use settings module from app.js
+  if (window.app && window.app.getModule) {
+    const settingsModule = window.app.getModule('settings');
+    if (settingsModule && settingsModule.applyTheme) {
+      try {
+        settingsModule.applyTheme(isDark);
+        return;
+      } catch (error) {
+        console.warn('Settings module applyTheme failed, falling back to legacy method:', error);
+      }
+    }
+  }
+  
+  // Fallback to legacy method
+  applyThemeLegacy(isDark);
+}
+
+// Legacy implementation (renamed)
+function applyThemeLegacy(isDark) {
   const body = document.body;
   const darkModeBtn = document.getElementById("darkModeBtn");
   const icon = darkModeBtn?.querySelector("i");
@@ -2957,8 +3065,50 @@ function applyTheme(isDark) {
   }
 }
 
-// Populate exam dropdown with available exams
+// HYBRID MIGRATION: Use data module from app.js
 async function populateExamDropdown() {
+  // Use modern data module if available
+  if (window.app && window.app.getModule) {
+    const dataModule = window.app.getModule('data');
+    if (dataModule && dataModule.loadAvailableExams) {
+      try {
+        const exams = await dataModule.loadAvailableExams();
+        populateDropdownWithExams(exams);
+        return;
+      } catch (error) {
+        console.warn('Data module failed, falling back to legacy method:', error);
+      }
+    }
+  }
+  
+  // Fallback to legacy method
+  populateExamDropdownLegacy();
+}
+
+// Helper function to populate dropdown with modern data structure
+function populateDropdownWithExams(exams) {
+  const examSelect = document.getElementById("examCode");
+  if (!examSelect) return;
+
+  // Clear existing options
+  examSelect.innerHTML = '<option value="">Select an exam...</option>';
+
+  // Sort exams alphabetically (critical business rule)
+  const sortedExamCodes = Object.keys(exams).sort((a, b) => a.localeCompare(b));
+
+  sortedExamCodes.forEach(examCode => {
+    const exam = exams[examCode];
+    const option = document.createElement('option');
+    option.value = examCode;
+    option.textContent = `${examCode} - ${exam.name || examCode}`;
+    examSelect.appendChild(option);
+  });
+
+  console.log(`📋 [DATA MODULE] Populated dropdown with ${sortedExamCodes.length} exams`);
+}
+
+// Legacy implementation (renamed)
+async function populateExamDropdownLegacy() {
   const examSelect = document.getElementById("examCode");
 
   // Clear existing options except the first one
@@ -3192,7 +3342,13 @@ function setupEventListeners() {
     .getElementById("showQuestionToolbar")
     .addEventListener("change", () => {
       saveSettings();
-      updateToolbarVisibility();
+      // FORCE update UI after settings save
+      if (window.app && window.app.getModule) {
+        const settingsModule = window.app.getModule('settings');
+        if (settingsModule && settingsModule.updateToolbarVisibility) {
+          settingsModule.updateToolbarVisibility();
+        }
+      }
       displayCurrentQuestion();
     });
   
@@ -3200,7 +3356,13 @@ function setupEventListeners() {
     .getElementById("showAdvancedSearch")
     .addEventListener("change", () => {
       saveSettings();
-      updateAdvancedSearchVisibility();
+      // FORCE update UI after settings save
+      if (window.app && window.app.getModule) {
+        const settingsModule = window.app.getModule('settings');
+        if (settingsModule && settingsModule.updateAdvancedSearchVisibility) {
+          settingsModule.updateAdvancedSearchVisibility();
+        }
+      }
     });
 
   document
@@ -3214,6 +3376,13 @@ function setupEventListeners() {
     .getElementById("showMainProgressBar")
     .addEventListener("change", () => {
       saveSettings();
+      // FORCE update UI after settings save
+      if (window.app && window.app.getModule) {
+        const settingsModule = window.app.getModule('settings');
+        if (settingsModule && settingsModule.updateMainProgressBarVisibility) {
+          settingsModule.updateMainProgressBarVisibility();
+        }
+      }
       showSuccess("Progress indicator setting updated.");
     });
 
@@ -3601,6 +3770,8 @@ async function displayAvailableExams() {
 
 // Load exam data
 async function loadExam(examCode) {
+  console.log('🔍 [DEBUG] loadExam() called from SCRIPT.JS with examCode:', examCode);
+  
   if (!availableExams[examCode]) {
     showError(
       `Exam code "${examCode}" not found. Available exams: ${Object.keys(
@@ -3641,6 +3812,13 @@ async function loadExam(examCode) {
       // Assemble current questions from loaded chunks
       allQuestions = assembleCurrentQuestions();
       currentQuestions = [...allQuestions];
+      console.log('🔍 [DEBUG] Chunked branch - allQuestions:', allQuestions.length, 'currentQuestions:', currentQuestions.length);
+      
+      // CRITICAL: Update window variables for module synchronization
+      window.currentQuestions = currentQuestions;
+      window.currentExam = currentExam;
+      window.currentQuestionIndex = currentQuestionIndex;
+      console.log('🔍 [DEBUG] Updated window.currentQuestions:', window.currentQuestions.length);
     } else {
       // Standard loading for smaller exams
       const response = await fetch(`data/${examCode}/exam.json`);
@@ -3675,6 +3853,13 @@ async function loadExam(examCode) {
 
       // Initialize current questions
       currentQuestions = [...allQuestions];
+      console.log('🔍 [DEBUG] Standard branch - allQuestions:', allQuestions.length, 'currentQuestions:', currentQuestions.length);
+      
+      // CRITICAL: Update window variables for module synchronization
+      window.currentQuestions = currentQuestions;
+      window.currentExam = currentExam;
+      window.currentQuestionIndex = currentQuestionIndex;
+      console.log('🔍 [DEBUG] Updated window.currentQuestions:', window.currentQuestions.length);
     }
     
     // Reset search state
@@ -3763,6 +3948,25 @@ async function loadExam(examCode) {
 
 // Show/hide loading
 function showLoading(show) {
+  console.log('🔍 [DEBUG] showLoading() called from script.js');
+  
+  // HYBRID MIGRATION: Use UI module from app.js
+  if (window.app && window.app.getModule) {
+    const uiModule = window.app.getModule('ui');
+    
+    if (uiModule && uiModule.showLoading) {
+      try {
+        console.log('✅ [HYBRID] Using modern UI module for showLoading');
+        uiModule.showLoading(show);
+        return;
+      } catch (error) {
+        console.warn('UI module showLoading failed, falling back to legacy method:', error);
+      }
+    }
+  }
+  
+  // Fallback to legacy method
+  console.log('⚠️ [HYBRID] Falling back to legacy showLoading');
   document.getElementById("loadingSection").style.display = show
     ? "block"
     : "none";
@@ -3770,6 +3974,25 @@ function showLoading(show) {
 
 // Show error message
 function showError(message) {
+  console.log('🔍 [DEBUG] showError() called from script.js');
+  
+  // HYBRID MIGRATION: Use UI module from app.js
+  if (window.app && window.app.getModule) {
+    const uiModule = window.app.getModule('ui');
+    
+    if (uiModule && uiModule.showError) {
+      try {
+        console.log('✅ [HYBRID] Using modern UI module for showError');
+        uiModule.showError(message);
+        return;
+      } catch (error) {
+        console.warn('UI module showError failed, falling back to legacy method:', error);
+      }
+    }
+  }
+  
+  // Fallback to legacy method
+  console.log('⚠️ [HYBRID] Falling back to legacy showError');
   const errorEl = document.getElementById("errorMessage");
   errorEl.textContent = message;
   errorEl.style.display = "block";
@@ -3778,6 +4001,25 @@ function showError(message) {
 
 // Show success message
 function showSuccess(message) {
+  console.log('🔍 [DEBUG] showSuccess() called from script.js');
+  
+  // HYBRID MIGRATION: Use UI module from app.js
+  if (window.app && window.app.getModule) {
+    const uiModule = window.app.getModule('ui');
+    
+    if (uiModule && uiModule.showSuccess) {
+      try {
+        console.log('✅ [HYBRID] Using modern UI module for showSuccess');
+        uiModule.showSuccess(message);
+        return;
+      } catch (error) {
+        console.warn('UI module showSuccess failed, falling back to legacy method:', error);
+      }
+    }
+  }
+  
+  // Fallback to legacy method
+  console.log('⚠️ [HYBRID] Falling back to legacy showSuccess');
   const successEl = document.getElementById("successMessage");
   successEl.textContent = message;
   successEl.style.display = "block";
@@ -4161,6 +4403,36 @@ function testQuestionJumpField() {
 
 // Display current question
 function displayCurrentQuestion(fromToggleAction = false) {
+  console.log('🔍 [DEBUG] displayCurrentQuestion() called from script.js');
+  
+  // HYBRID MIGRATION: Use UI module from app.js
+  if (window.app && window.app.getModule) {
+    const uiModule = window.app.getModule('ui');
+    console.log('🔍 [DEBUG] UI module found:', !!uiModule);
+    
+    if (uiModule && uiModule.displayCurrentQuestion) {
+      try {
+        console.log('✅ [HYBRID] Using modern UI module');
+        uiModule.displayCurrentQuestion(fromToggleAction);
+        console.log('🎯 [UI MODULE] Question displayed via modern module');
+        return;
+      } catch (error) {
+        console.warn('UI module failed, falling back to legacy method:', error);
+      }
+    } else {
+      console.warn('🔍 [DEBUG] UI module or displayCurrentQuestion function not available');
+    }
+  } else {
+    console.warn('🔍 [DEBUG] window.app or getModule not available');
+  }
+  
+  // Fallback to legacy method
+  console.log('⚠️ [HYBRID] Falling back to legacy displayCurrentQuestion');
+  displayCurrentQuestionLegacy(fromToggleAction);
+}
+
+// Legacy implementation (renamed)
+function displayCurrentQuestionLegacy(fromToggleAction = false) {
   if (!currentQuestions.length) return;
 
   const question = currentQuestions[currentQuestionIndex];
@@ -4811,6 +5083,25 @@ function toggleHighlight() {
 
 // Update highlight button appearance
 function updateHighlightButton() {
+  console.log('🔍 [DEBUG] updateHighlightButton() called from script.js');
+  
+  // HYBRID MIGRATION: Use UI module from app.js
+  if (window.app && window.app.getModule) {
+    const uiModule = window.app.getModule('ui');
+    
+    if (uiModule && uiModule.updateHighlightButton) {
+      try {
+        console.log('✅ [HYBRID] Using modern UI module for updateHighlightButton');
+        uiModule.updateHighlightButton();
+        return;
+      } catch (error) {
+        console.warn('UI module updateHighlightButton failed, falling back to legacy method:', error);
+      }
+    }
+  }
+  
+  // Fallback to legacy method
+  console.log('⚠️ [HYBRID] Falling back to legacy updateHighlightButton');
   const highlightBtn = document.getElementById("highlightBtn");
 
   if (isHighlightEnabled) {
@@ -8159,9 +8450,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Apply theme
   applyTheme(settings.darkMode);
 
-  // Setup event listeners (only once)
-  setupEventListeners();
-  setupFavoritesEventListeners();
+  // Setup event listeners with delay to allow modules to load
+  setTimeout(() => {
+    console.log('🎯 [HYBRID] Setting up event listeners after module loading delay');
+    setupEventListeners();
+    setupFavoritesEventListeners();
+  }, 1000); // 1 second delay to allow modules to load
 
   // Initialize category dropdown
   updateCategoryDropdown();

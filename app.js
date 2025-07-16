@@ -653,5 +653,66 @@ window.processEmbeddedImages = processEmbeddedImages;
 
 // Manual initialization available via: window.app.init()
 
+// HYBRID MODE: Initialize data module only for progressive migration
+window.addEventListener('DOMContentLoaded', async () => {
+  try {
+    // Load only core data functionality for hybrid mode
+    await app.loadCoreData();
+    
+    // Initialize data and statistics modules
+    const dataModule = await app.loadModule('./modules/data.js');
+    if (dataModule) {
+      app.modules.set('data', dataModule);
+      console.log('✅ [HYBRID] Data module ready for migration');
+    }
+    
+    const statisticsModule = await app.loadModule('./modules/statistics.js');
+    if (statisticsModule) {
+      app.modules.set('statistics', statisticsModule);
+      console.log('✅ [HYBRID] Statistics module ready for migration');
+    }
+    
+    const settingsModule = await app.loadModule('./modules/settings.js');
+    if (settingsModule) {
+      app.modules.set('settings', settingsModule);
+      console.log('✅ [HYBRID] Settings module ready for migration');
+      
+      // Test if settings module works
+      console.log('🧪 [TEST] Settings module functions:', {
+        loadSettings: typeof settingsModule.loadSettings,
+        saveSettings: typeof settingsModule.saveSettings,
+        applyTheme: typeof settingsModule.applyTheme
+      });
+    } else {
+      console.error('❌ [HYBRID] Failed to load settings module');
+    }
+    
+    const uiModule = await app.loadModule('./modules/ui.js');
+    if (uiModule) {
+      app.modules.set('ui', uiModule);
+      console.log('✅ [HYBRID] UI module ready for migration');
+      
+      // Initialize the UI module
+      if (uiModule.init) {
+        await uiModule.init();
+        console.log('✅ [HYBRID] UI module initialized');
+      }
+      
+      // Test if UI module works
+      console.log('🧪 [TEST] UI module functions:', {
+        displayCurrentQuestion: typeof uiModule.displayCurrentQuestion,
+        showLoading: typeof uiModule.showLoading,
+        showError: typeof uiModule.showError,
+        showSuccess: typeof uiModule.showSuccess,
+        updateHighlightButton: typeof uiModule.updateHighlightButton
+      });
+    } else {
+      console.error('❌ [HYBRID] Failed to load UI module');
+    }
+  } catch (error) {
+    console.warn('⚠️ [HYBRID] Data module initialization failed:', error);
+  }
+});
+
 // Export app instance for ES6 modules
 export default app;

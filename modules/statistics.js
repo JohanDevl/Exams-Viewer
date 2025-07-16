@@ -1,19 +1,63 @@
 // Statistics Management Module
 // This module handles all statistics tracking, session management, and data persistence
 
-import { 
-  statistics, 
-  updateStatistics 
-} from './state.js';
+// HYBRID MODE: Simplified imports for compatibility
+// Use global statistics object if state module not available
+let statistics = window.statistics || {
+  sessions: [],
+  currentSession: null,
+  totalStats: {
+    totalQuestions: 0,
+    totalCorrect: 0,
+    totalIncorrect: 0,
+    totalPreview: 0,
+    totalTime: 0,
+    examStats: {}
+  }
+};
 
-import { 
-  compressData, 
-  decompressData, 
-  generateCompactId,
-  safeLocalStorageGet,
-  safeLocalStorageSet,
-  safeLocalStorageRemove
-} from './utils.js';
+function updateStatistics(newStats) {
+  if (window.statistics) {
+    Object.assign(window.statistics, newStats);
+  }
+}
+
+// Simple utility functions for hybrid mode
+function generateCompactId() {
+  const now = Date.now();
+  const random = Math.random().toString(36).substr(2, 3);
+  return `${now.toString(36)}${random}`;
+}
+
+function safeLocalStorageGet(key, defaultValue = null) {
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : defaultValue;
+  } catch (error) {
+    console.warn(`Failed to load from localStorage: ${key}`, error);
+    return defaultValue;
+  }
+}
+
+function safeLocalStorageSet(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch (error) {
+    console.warn(`Failed to save to localStorage: ${key}`, error);
+    return false;
+  }
+}
+
+function safeLocalStorageRemove(key) {
+  try {
+    localStorage.removeItem(key);
+    return true;
+  } catch (error) {
+    console.warn(`Failed to remove from localStorage: ${key}`, error);
+    return false;
+  }
+}
 
 // Session data structure
 export class ExamSession {
