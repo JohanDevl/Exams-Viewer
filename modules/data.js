@@ -4,6 +4,12 @@
 // HYBRID MODE: Simplified imports to avoid circular dependencies
 // For hybrid mode, we make this module more autonomous
 
+// HYBRID MODE: Access global variables directly
+const lazyLoadingConfig = window.lazyLoadingConfig || { loadedChunks: new Map(), chunkSize: 50, totalChunks: 0, examMetadata: null, isChunkedExam: false, preloadBuffer: 1 };
+const availableExams = window.availableExams || {};
+let allQuestions = window.allQuestions || [];
+const processEmbeddedImages = window.processEmbeddedImages || ((content) => content);
+
 // Check if an exam has chunked version for lazy loading
 async function checkForChunkedExam(examCode) {
   try {
@@ -18,11 +24,12 @@ async function checkForChunkedExam(examCode) {
     if (metadata.chunked && metadata.total_questions >= 100) {
       console.log(`🧩 Chunked exam detected: ${examCode} (${metadata.total_questions} questions, ${metadata.total_chunks} chunks)`);
       
-      updateLazyLoadingConfig({
-        isChunkedExam: true,
-        totalChunks: metadata.total_chunks,
-        examMetadata: metadata
-      });
+      // HYBRID MODE: Update lazy loading config directly
+      if (window.lazyLoadingConfig) {
+        window.lazyLoadingConfig.isChunkedExam = true;
+        window.lazyLoadingConfig.totalChunks = metadata.total_chunks;
+        window.lazyLoadingConfig.examMetadata = metadata;
+      }
       
       return true;
     } else {
@@ -114,7 +121,9 @@ export async function ensureQuestionLoaded(examCode, questionIndex) {
       await preloadChunks(examCode, requiredChunk);
       
       // Update assembled questions immediately after loading
-      updateAllQuestions(assembleCurrentQuestions());
+      // HYBRID MODE: Update questions directly
+      window.allQuestions = assembleCurrentQuestions();
+      window.currentQuestions = [...window.allQuestions];
       
       console.log(`✅ Chunk ${requiredChunk} loaded successfully`);
     } catch (error) {
@@ -129,7 +138,7 @@ export async function ensureQuestionLoaded(examCode, questionIndex) {
 // Assemble current questions from loaded chunks
 export function assembleCurrentQuestions() {
   if (!lazyLoadingConfig.isChunkedExam) {
-    return allQuestions;
+    return window.allQuestions || [];
   }
 
   const assembledQuestions = [];
@@ -193,15 +202,17 @@ export async function loadExam(examCode) {
         questions: [], // Will be assembled dynamically
         isChunked: true
       };
-      updateCurrentExam(examData);
+      // HYBRID MODE: Update current exam directly
+      window.currentExam = examData;
 
       // Preload nearby chunks
       await preloadChunks(examCode, 0);
 
       // Assemble current questions from loaded chunks
       const assembled = assembleCurrentQuestions();
-      updateAllQuestions(assembled);
-      updateCurrentQuestions([...assembled]);
+      // HYBRID MODE: Update questions directly
+      window.allQuestions = assembled;
+      window.currentQuestions = [...assembled];
     } else {
       // Standard loading for smaller exams
       const response = await fetch(`data/${examCode}/exam.json`);
@@ -234,14 +245,16 @@ export async function loadExam(examCode) {
         questions: processedQuestions,
         isChunked: false
       };
-      updateCurrentExam(examData);
+      // HYBRID MODE: Update current exam directly
+      window.currentExam = examData;
 
       // Update questions arrays
-      updateAllQuestions(processedQuestions);
-      updateCurrentQuestions([...processedQuestions]);
+      // HYBRID MODE: Update questions directly
+      window.allQuestions = processedQuestions;
+      window.currentQuestions = [...processedQuestions];
     }
 
-    console.log(`📚 Loaded exam: ${examCode} (${currentQuestions.length} questions)`);
+    console.log(`📚 Loaded exam: ${examCode} (${window.currentQuestions?.length || 0} questions)`);
     return true;
   } catch (error) {
     console.error(`❌ Error loading exam ${examCode}:`, error);
