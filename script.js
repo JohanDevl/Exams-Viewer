@@ -1032,7 +1032,13 @@ function startExamSession(examCode, examName) {
 
 // End current session
 function endCurrentSession() {
+  console.log('📊 [SESSION] endCurrentSession() called');
+  console.log('📊 [SESSION] Current session exists:', !!statistics.currentSession);
+  
   if (statistics.currentSession) {
+    console.log('📊 [SESSION] Ending session for exam:', statistics.currentSession.ec);
+    console.log('📊 [SESSION] Session had', statistics.currentSession.q?.length || 0, 'question attempts');
+    
     statistics.currentSession.et = Date.now();
     statistics.currentSession.c = true;
 
@@ -1052,7 +1058,10 @@ function endCurrentSession() {
     recalculateTotalStats();
     saveStatistics();
 
+    console.log('📊 [SESSION] Session ended and saved. Total sessions now:', statistics.sessions.length);
     devLog("Ended exam session");
+  } else {
+    console.log('📊 [SESSION] No active session to end');
   }
 }
 
@@ -8387,6 +8396,38 @@ async function navigateToQuestionAsync(index) {
   await navigateToQuestionIndex(index);
 }
 
+// Setup automatic session saving for when user leaves page or changes exam
+function setupAutomaticSessionSaving() {
+  console.log('📊 [SESSION] Setting up automatic session saving...');
+  
+  // Save session when page unloads
+  window.addEventListener('beforeunload', (event) => {
+    console.log('📊 [SESSION] Page unloading - saving current session');
+    if (statistics.currentSession && statistics.currentSession.q && statistics.currentSession.q.length > 0) {
+      endCurrentSession();
+    }
+  });
+  
+  // Save session when page becomes hidden (mobile/tab switching)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && statistics.currentSession && statistics.currentSession.q && statistics.currentSession.q.length > 0) {
+      console.log('📊 [SESSION] Page hidden - saving current session');
+      // Don't end session, just save current state
+      saveStatistics();
+    }
+  });
+  
+  // Periodic auto-save every 30 seconds if there's activity
+  setInterval(() => {
+    if (statistics.currentSession && statistics.currentSession.q && statistics.currentSession.q.length > 0) {
+      console.log('📊 [SESSION] Periodic auto-save of current session');
+      saveStatistics();
+    }
+  }, 30000); // 30 seconds
+  
+  console.log('✅ [SESSION] Automatic session saving setup complete');
+}
+
 // Wait for app modules to be ready for proper initialization order
 async function waitForAppModules() {
   // Wait for app to be available
@@ -8452,6 +8493,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   
   // HYBRID MODE: Ensure window.statistics is synchronized after loading
   window.statistics = statistics;
+  
+  // Setup automatic session saving
+  setupAutomaticSessionSaving();
   
   // Clean up old resume positions
   cleanupResumePositions();
