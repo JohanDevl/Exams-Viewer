@@ -30,6 +30,9 @@ let settings = {
 // Available exams mapping (will be populated dynamically)
 let availableExams = {};
 
+// HYBRID MODE: Initialize window.availableExams immediately for modules
+window.availableExams = availableExams;
+
 // Lazy loading system
 let lazyLoadingConfig = {
   chunkSize: 50, // Questions per chunk
@@ -2775,6 +2778,8 @@ async function discoverAvailableExams() {
 
           if (Object.keys(discoveredExams).length > 0) {
             availableExams = discoveredExams;
+            // HYBRID MODE: Sync with window
+            window.availableExams = availableExams;
             devLog(
               "Successfully loaded exams from manifest:",
               Object.keys(availableExams)
@@ -2817,6 +2822,8 @@ async function discoverAvailableExams() {
             Object.keys(discoveredExams)
           );
           availableExams = discoveredExams;
+          // HYBRID MODE: Sync with window
+          window.availableExams = availableExams;
           return availableExams;
         }
       }
@@ -2898,6 +2905,8 @@ async function discoverAvailableExams() {
     await Promise.all(examCheckPromises);
 
     availableExams = discoveredExams;
+    // HYBRID MODE: Sync with window
+    window.availableExams = availableExams;
     devLog("Final discovered exams:", Object.keys(availableExams));
 
     return availableExams;
@@ -2905,6 +2914,8 @@ async function discoverAvailableExams() {
     devError("Error discovering exams:", error);
     // Fallback: return empty object if discovery fails
     availableExams = {};
+    // HYBRID MODE: Sync with window
+    window.availableExams = availableExams;
     return availableExams;
   }
 }
