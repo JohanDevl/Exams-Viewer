@@ -159,6 +159,9 @@ export function saveSettings() {
     if (element) {
       newSettings[setting] = element.checked;
       console.log(`💾 [SETTINGS] ${setting}: ${element.checked}`);
+    } else {
+      // Keep existing value if element not found
+      console.log(`⚠️ [SETTINGS] Element not found for ${setting}, keeping existing value: ${settings[setting]}`);
     }
   });
 
@@ -250,17 +253,22 @@ export function saveSettings() {
 
 // Apply theme (dark/light mode)
 export function applyTheme(isDark) {
+  console.log('🎨 [SETTINGS MODULE] applyTheme called with isDark:', isDark);
+  console.trace('🎨 [SETTINGS MODULE] Call stack:');
+  
   const body = document.body;
   const darkModeBtn = document.getElementById("darkModeBtn");
   const icon = darkModeBtn?.querySelector("i");
 
   if (isDark) {
+    console.log('🎨 [SETTINGS MODULE] Applying dark theme');
     body.setAttribute("data-theme", "dark");
     if (icon) {
       icon.className = "fas fa-sun";
       darkModeBtn.title = "Switch to Light Mode";
     }
   } else {
+    console.log('🎨 [SETTINGS MODULE] Applying light theme');
     body.removeAttribute("data-theme");
     if (icon) {
       icon.className = "fas fa-moon";

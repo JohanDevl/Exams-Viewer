@@ -44,10 +44,10 @@ function updateSelectedAnswers(answers) {
 }
 
 function updateIsValidated(validated) {
-  if (window.isValidated !== undefined) {
-    window.isValidated = validated;
-  }
+  // Always update both local and global state
+  window.isValidated = validated;
   isValidated = validated;
+  console.log('🔄 [UI MODULE] Updated isValidated:', validated);
 }
 
 function updateIsHighlightEnabled(enabled) {
@@ -108,7 +108,7 @@ function syncWithGlobalState() {
   favoritesData = window.favoritesData || favoritesData;
   statistics = window.statistics || statistics;
   
-  console.log(`🔄 [UI MODULE] State synced - Questions: ${currentQuestions?.length || 0}, Index: ${currentQuestionIndex}`);
+  console.log(`🔄 [UI MODULE] State synced - Questions: ${currentQuestions?.length || 0}, Index: ${currentQuestionIndex}, isValidated: ${isValidated}`);
 }
 
 // Initialize module
@@ -209,7 +209,9 @@ export function displayCurrentQuestion(fromToggleAction = false) {
 
   // Reset state first (unless from toggle action)
   if (!fromToggleAction) {
-    updateSelectedAnswers(new Set());
+    // Reset selected answers both locally and globally
+    selectedAnswers = new Set();
+    window.selectedAnswers = new Set();
     updateIsValidated(false);
     updateQuestionStartTime(new Date()); // Start timing the question
 
@@ -380,10 +382,16 @@ function updateAnswersSection(question) {
   if (isHighlightEnabled) {
     updateAnswerHighlighting();
   }
+  
+  // Update validate button state
+  updateValidateButton();
 }
 
 // Toggle answer selection
 function toggleAnswerSelection(letter) {
+  // Sync with global state first
+  syncWithGlobalState();
+  
   const newSelectedAnswers = new Set(selectedAnswers);
   
   if (newSelectedAnswers.has(letter)) {
@@ -392,12 +400,31 @@ function toggleAnswerSelection(letter) {
     newSelectedAnswers.add(letter);
   }
   
-  updateSelectedAnswers(newSelectedAnswers);
+  // Update both local and global state
+  selectedAnswers = newSelectedAnswers;
+  window.selectedAnswers = newSelectedAnswers;
   
-  // Update UI
-  const answerOption = document.querySelector(`[data-answer="${letter}"]`);
-  if (answerOption) {
-    answerOption.classList.toggle('selected', newSelectedAnswers.has(letter));
+  // Update UI for all answer options
+  const answerOptions = document.querySelectorAll('.answer-option');
+  answerOptions.forEach(option => {
+    const optionLetter = option.dataset.answer;
+    if (optionLetter) {
+      const shouldBeSelected = newSelectedAnswers.has(optionLetter);
+      option.classList.toggle('selected', shouldBeSelected);
+    }
+  });
+  
+  // Update validate button state
+  updateValidateButton();
+  
+  // Update instructions to reflect new selection state
+  if (window.updateInstructions && typeof window.updateInstructions === 'function') {
+    window.updateInstructions();
+  }
+  
+  // Also call legacy function if it exists for backward compatibility
+  if (window.updateValidateButtonState && typeof window.updateValidateButtonState === 'function') {
+    window.updateValidateButtonState();
   }
 }
 
@@ -436,6 +463,9 @@ function updateDiscussionSection(question) {
 
 // Update all UI state elements
 function updateAllUIState(question) {
+  // Sync with global state first
+  syncWithGlobalState();
+  
   // Update navigation buttons
   updateNavigationButtons();
   
@@ -486,11 +516,25 @@ export function updateHighlightButton() {
 
 // Update answer highlighting
 function updateAnswerHighlighting() {
-  if (!currentQuestions[currentQuestionIndex]) return;
+  console.log('🔍 [UI MODULE] updateAnswerHighlighting called');
+  
+  // Sync with global state first
+  syncWithGlobalState();
+  
+  console.log('🔍 [UI MODULE] isHighlightEnabled:', isHighlightEnabled);
+  console.log('🔍 [UI MODULE] window.isHighlightEnabled:', window.isHighlightEnabled);
+  
+  if (!currentQuestions[currentQuestionIndex]) {
+    console.warn('🔍 [UI MODULE] No current question available for highlighting');
+    return;
+  }
 
   const question = currentQuestions[currentQuestionIndex];
   const correctAnswers = question.most_voted || question.correct_answers || [];
+  console.log('🔍 [UI MODULE] Correct answers:', correctAnswers);
+  
   const answerOptions = document.querySelectorAll('.answer-option');
+  console.log('🔍 [UI MODULE] Found answer options:', answerOptions.length);
 
   answerOptions.forEach(option => {
     const letter = option.dataset.answer;
@@ -498,7 +542,10 @@ function updateAnswerHighlighting() {
       ? correctAnswers.includes(letter)
       : (typeof correctAnswers === 'string' && correctAnswers.includes(letter));
     
-    option.classList.toggle('highlighted', isHighlightEnabled && isCorrect);
+    const shouldHighlight = isHighlightEnabled && isCorrect;
+    console.log(`🔍 [UI MODULE] Answer ${letter}: isCorrect=${isCorrect}, shouldHighlight=${shouldHighlight}`);
+    
+    option.classList.toggle('highlighted', shouldHighlight);
   });
 }
 
@@ -524,7 +571,11 @@ function updateFavoritesButton(question) {
 }
 
 // Update validate button
-function updateValidateButton() {
+export function updateValidateButton() {
+  // Only sync validation-related state, not all global state
+  selectedAnswers = window.selectedAnswers || selectedAnswers;
+  isValidated = window.isValidated || isValidated;
+  
   const validateBtn = document.getElementById('validateBtn');
   if (!validateBtn) return;
 
@@ -543,9 +594,21 @@ function updateValidateButton() {
 // Show validation results
 export function showValidationResults(correctAnswers) {
   console.log('🎯 [UI MODULE] showValidationResults called');
+  console.log('🎯 [UI MODULE] correctAnswers:', correctAnswers);
+  
+  // No need to sync entire global state for validation results
+  // Only sync the validation state specifically
+  isValidated = true;
+  window.isValidated = true;
+  
+  // Sync selectedAnswers from global state to ensure we have the correct selections
+  selectedAnswers = window.selectedAnswers || selectedAnswers;
   
   const answerOptions = document.querySelectorAll('.answer-option');
   const userAnswers = Array.from(selectedAnswers);
+  
+  console.log('🎯 [UI MODULE] userAnswers:', userAnswers);
+  console.log('🎯 [UI MODULE] Found answer options:', answerOptions.length);
   
   answerOptions.forEach(option => {
     const letter = option.dataset.answer;
@@ -554,26 +617,39 @@ export function showValidationResults(correctAnswers) {
       : (typeof correctAnswers === 'string' && correctAnswers.includes(letter));
     const isSelected = userAnswers.includes(letter);
     
+    console.log(`🎯 [UI MODULE] Answer ${letter}: isCorrect=${isCorrect}, isSelected=${isSelected}`);
+    
     // Remove previous validation classes
-    option.classList.remove('correct-answer', 'incorrect-answer', 'missed-answer');
+    option.classList.remove('correct', 'incorrect', 'correct-not-selected');
     
     if (isSelected && isCorrect) {
-      option.classList.add('correct-answer');
+      option.classList.add('correct');
+      console.log(`🎯 [UI MODULE] Added 'correct' class to ${letter}`);
+      console.log(`🎯 [UI MODULE] Element classes after adding correct:`, option.className);
     } else if (isSelected && !isCorrect) {
-      option.classList.add('incorrect-answer');
+      option.classList.add('incorrect');
+      console.log(`🎯 [UI MODULE] Added 'incorrect' class to ${letter}`);
+      console.log(`🎯 [UI MODULE] Element classes after adding incorrect:`, option.className);
     } else if (!isSelected && isCorrect) {
-      option.classList.add('missed-answer');
+      option.classList.add('correct-not-selected');
+      console.log(`🎯 [UI MODULE] Added 'correct-not-selected' class to ${letter}`);
+      console.log(`🎯 [UI MODULE] Element classes after adding correct-not-selected:`, option.className);
     }
   });
   
   // Show validation message
-  const isCorrect = userAnswers.length === correctAnswers.length && 
-    userAnswers.every(answer => correctAnswers.includes(answer));
+  const normalizedCorrectAnswers = Array.isArray(correctAnswers) ? correctAnswers : 
+    (typeof correctAnswers === 'string' ? correctAnswers.split('') : []);
   
-  if (isCorrect) {
+  const isCorrectAnswer = userAnswers.length === normalizedCorrectAnswers.length && 
+    userAnswers.every(answer => normalizedCorrectAnswers.includes(answer));
+  
+  console.log('🎯 [UI MODULE] isCorrectAnswer:', isCorrectAnswer);
+  
+  if (isCorrectAnswer) {
     showSuccess('Correct! Well done.');
   } else {
-    showError(`Incorrect. Correct answer${correctAnswers.length > 1 ? 's' : ''}: ${correctAnswers.join(', ')}`);
+    showError(`Incorrect. Correct answer${normalizedCorrectAnswers.length > 1 ? 's' : ''}: ${normalizedCorrectAnswers.join(', ')}`);
   }
   
   // Update validate button state

@@ -643,6 +643,27 @@ window.truncateText = truncateText;
 window.addHapticFeedback = addHapticFeedback;
 window.processEmbeddedImages = processEmbeddedImages;
 
+// HYBRID MODE: Initialize modules on demand and expose them globally
+async function initModulesIfNeeded() {
+  if (!app.initialized) {
+    try {
+      await app.init();
+      console.log('✅ App modules initialized for hybrid mode');
+    } catch (error) {
+      console.warn('⚠️ Failed to initialize app modules:', error);
+    }
+  }
+  
+  // Expose UI module globally for legacy compatibility
+  if (app.modules.has('ui')) {
+    window.uiModule = app.modules.get('ui');
+    console.log('✅ UI module exposed globally');
+  }
+}
+
+// Initialize modules when needed
+window.initModulesIfNeeded = initModulesIfNeeded;
+
 // HYBRID MODE: Disable auto-initialization to avoid conflicts with script.js
 // Initialize app when DOM is ready
 // if (document.readyState === 'loading') {

@@ -545,8 +545,22 @@ function clearCorruptedData() {
           
           // Additional validation for settings
           if (item.key === 'examViewerSettings') {
-            if (parsed && typeof parsed !== 'object') {
+            if (parsed && (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed))) {
               throw new Error('Invalid settings structure');
+            }
+            // Additional check: ensure it's a valid settings object with expected properties
+            if (parsed && typeof parsed === 'object') {
+              const requiredTypes = {
+                'darkMode': 'boolean',
+                'showDiscussionDefault': 'boolean',
+                'highlightDefault': 'boolean'
+              };
+              for (const [key, expectedType] of Object.entries(requiredTypes)) {
+                if (parsed.hasOwnProperty(key) && typeof parsed[key] !== expectedType) {
+                  console.warn(`Settings property ${key} has wrong type: expected ${expectedType}, got ${typeof parsed[key]}`);
+                  // Don't throw error, just log warning - let the app handle missing properties
+                }
+              }
             }
           }
           
@@ -567,6 +581,14 @@ function clearCorruptedData() {
           
         } catch (e) {
           console.warn(`${item.name} data validation failed:`, e.message);
+          
+          // For settings, don't remove immediately - they might be temporarily corrupted during validation
+          if (item.key === 'examViewerSettings') {
+            console.warn('Settings validation failed, but keeping them to avoid theme reset during validation');
+            // Try to recover by loading with defaults instead of removing
+            return;
+          }
+          
           localStorage.removeItem(item.key);
           
           // Only show error for statistics, settings/favorites can be recreated silently
@@ -2932,33 +2954,28 @@ function saveSettings() {
 
 // Legacy implementation (renamed)
 function saveSettingsLegacy() {
-  settings.showDiscussionDefault = document.getElementById(
-    "showDiscussionDefault"
-  ).checked;
-  settings.highlightDefault =
-    document.getElementById("highlightDefault").checked;
-  settings.darkMode = document.getElementById("darkModeToggle").checked;
-  settings.showQuestionToolbar = document.getElementById(
-    "showQuestionToolbar"
-  ).checked;
-  settings.showAdvancedSearch = document.getElementById(
-    "showAdvancedSearch"
-  ).checked;
-  settings.enableLazyLoading = document.getElementById(
-    "enableLazyLoading"
-  ).checked;
-  settings.showMainProgressBar = document.getElementById(
-    "showMainProgressBar"
-  ).checked;
-  settings.showTooltips = document.getElementById(
-    "showTooltips"
-  ).checked;
-  settings.enableResumePosition = document.getElementById(
-    "enableResumePosition"
-  ).checked;
-  settings.autoSavePosition = document.getElementById(
-    "autoSavePosition"
-  ).checked;
+  const showDiscussionElement = document.getElementById("showDiscussionDefault");
+  const highlightDefaultElement = document.getElementById("highlightDefault");
+  const darkModeElement = document.getElementById("darkModeToggle");
+  const showQuestionToolbarElement = document.getElementById("showQuestionToolbar");
+  const showAdvancedSearchElement = document.getElementById("showAdvancedSearch");
+  const enableLazyLoadingElement = document.getElementById("enableLazyLoading");
+  const showMainProgressBarElement = document.getElementById("showMainProgressBar");
+  const showTooltipsElement = document.getElementById("showTooltips");
+  const enableResumePositionElement = document.getElementById("enableResumePosition");
+  const autoSavePositionElement = document.getElementById("autoSavePosition");
+
+  // Only update settings if elements exist, otherwise keep current values
+  if (showDiscussionElement) settings.showDiscussionDefault = showDiscussionElement.checked;
+  if (highlightDefaultElement) settings.highlightDefault = highlightDefaultElement.checked;
+  if (darkModeElement) settings.darkMode = darkModeElement.checked;
+  if (showQuestionToolbarElement) settings.showQuestionToolbar = showQuestionToolbarElement.checked;
+  if (showAdvancedSearchElement) settings.showAdvancedSearch = showAdvancedSearchElement.checked;
+  if (enableLazyLoadingElement) settings.enableLazyLoading = enableLazyLoadingElement.checked;
+  if (showMainProgressBarElement) settings.showMainProgressBar = showMainProgressBarElement.checked;
+  if (showTooltipsElement) settings.showTooltips = showTooltipsElement.checked;
+  if (enableResumePositionElement) settings.enableResumePosition = enableResumePositionElement.checked;
+  if (autoSavePositionElement) settings.autoSavePosition = autoSavePositionElement.checked;
   localStorage.setItem("examViewerSettings", JSON.stringify(settings));
   
   // Handle highlight default setting change
@@ -3027,11 +3044,15 @@ function saveSettingsLegacy() {
 
 // Apply dark/light theme
 function applyTheme(isDark) {
+  console.log('🎨 [THEME DEBUG] applyTheme called with isDark:', isDark);
+  console.trace('🎨 [THEME DEBUG] Call stack:');
+  
   // HYBRID MIGRATION: Use settings module from app.js
   if (window.app && window.app.getModule) {
     const settingsModule = window.app.getModule('settings');
     if (settingsModule && settingsModule.applyTheme) {
       try {
+        console.log('🎨 [THEME DEBUG] Using settings module applyTheme');
         settingsModule.applyTheme(isDark);
         return;
       } catch (error) {
@@ -3041,6 +3062,7 @@ function applyTheme(isDark) {
   }
   
   // Fallback to legacy method
+  console.log('🎨 [THEME DEBUG] Using legacy applyTheme');
   applyThemeLegacy(isDark);
 }
 
@@ -3230,7 +3252,7 @@ function setupEventListeners() {
   // Answer controls
   document
     .getElementById("validateBtn")
-    .addEventListener("click", validateAnswers);
+    .addEventListener("click", () => validateAnswers());
   document.getElementById("resetBtn").addEventListener("click", resetAnswers);
   document
     .getElementById("highlightBtn")
@@ -4477,6 +4499,11 @@ function displayCurrentQuestionLegacy(fromToggleAction = false) {
   selectedAnswers.clear();
   isValidated = false;
   questionStartTime = new Date(); // Start timing the question
+  
+  // CRITICAL: Update window variables for module synchronization
+  window.selectedAnswers = selectedAnswers;
+  window.isValidated = isValidated;
+  window.questionStartTime = questionStartTime;
 
   // Reset highlight to default setting unless user has manually overridden it
   if (!isHighlightTemporaryOverride && !fromToggleAction) {
@@ -4661,6 +4688,10 @@ function toggleAnswerSelection(letter, element) {
     selectedAnswers.add(letter);
     element.classList.add("selected");
   }
+  
+  // CRITICAL: Update window state for module sync
+  window.selectedAnswers = selectedAnswers;
+  
   updateInstructions();
 }
 
@@ -4761,9 +4792,15 @@ function updateInstructions() {
 }
 
 // Validate answers
-function validateAnswers() {
+async function validateAnswers() {
   devLog("🔍 validateAnswers() called");
 
+  // CRITICAL: Sync with UI module state first
+  if (window.selectedAnswers) {
+    selectedAnswers = window.selectedAnswers;
+    devLog("🔍 DEBUG: Synced selectedAnswers from window:", Array.from(selectedAnswers));
+  }
+  
   // If highlight is enabled, track this as a preview action and disable highlight
   const wasHighlightEnabled = isHighlightEnabled;
   devLog("🔍 DEBUG: isHighlightEnabled at start:", isHighlightEnabled);
@@ -4845,26 +4882,63 @@ function validateAnswers() {
 
   isValidated = true;
 
-  // Update answer elements
-  const answerElements = document.querySelectorAll(".answer-option");
-  answerElements.forEach((element) => {
-    const letter = element
-      .querySelector(".answer-letter")
-      .textContent.charAt(0);
-    const isSelected = selectedAnswers.has(letter);
-    const isCorrect = correctAnswers.has(letter);
-
-    element.classList.add("disabled");
-    element.classList.remove("selected", "correct-not-selected");
-
-    if (isSelected && isCorrect) {
-      element.classList.add("correct");
-    } else if (isSelected && !isCorrect) {
-      element.classList.add("incorrect");
-    } else if (!isSelected && isCorrect) {
-      element.classList.add("correct-not-selected");
+  // Always update window state first for module sync
+  window.selectedAnswers = selectedAnswers;
+  window.isValidated = true;
+  
+  // Initialize modules if needed for hybrid mode - do this before displaying validation results
+  if (window.initModulesIfNeeded && !window.uiModule) {
+    console.log('🔍 [VALIDATE DEBUG] About to call initModulesIfNeeded - preserving current theme and state');
+    // Preserve current theme and answer state before module initialization
+    const currentTheme = document.body.getAttribute('data-theme');
+    const isDarkMode = currentTheme === 'dark';
+    const preservedSelectedAnswers = new Set(selectedAnswers);
+    const preservedValidationState = isValidated;
+    console.log('🔍 [VALIDATE DEBUG] Current theme before init:', currentTheme, 'isDarkMode:', isDarkMode);
+    console.log('🔍 [VALIDATE DEBUG] Preserved selectedAnswers:', Array.from(preservedSelectedAnswers));
+    
+    await window.initModulesIfNeeded();
+    
+    // Restore theme if it was changed during initialization
+    const newTheme = document.body.getAttribute('data-theme');
+    console.log('🔍 [VALIDATE DEBUG] Theme after init:', newTheme);
+    if ((currentTheme === 'dark' && newTheme !== 'dark') || (currentTheme !== 'dark' && newTheme === 'dark')) {
+      console.log('🔍 [VALIDATE DEBUG] Theme changed during init, restoring to:', isDarkMode);
+      if (window.app && window.app.getModule) {
+        const settingsModule = window.app.getModule('settings');
+        if (settingsModule && settingsModule.applyTheme) {
+          settingsModule.applyTheme(isDarkMode);
+        }
+      }
     }
-  });
+    
+    // Restore answer state after module initialization
+    selectedAnswers = preservedSelectedAnswers;
+    isValidated = preservedValidationState;
+    window.selectedAnswers = preservedSelectedAnswers;
+    window.isValidated = preservedValidationState;
+    console.log('🔍 [VALIDATE DEBUG] Restored selectedAnswers:', Array.from(selectedAnswers));
+  }
+  
+  // Use UI module for validation if available
+  if (window.uiModule && window.uiModule.showValidationResults) {
+    const correctAnswersArray = Array.from(correctAnswers);
+    devLog("✅ Using UI module for validation results");
+    window.uiModule.showValidationResults(correctAnswersArray);
+  } else if (window.app && window.app.getModule) {
+    const uiModule = window.app.getModule('ui');
+    if (uiModule && uiModule.showValidationResults) {
+      const correctAnswersArray = Array.from(correctAnswers);
+      devLog("✅ Using app UI module for validation results");
+      uiModule.showValidationResults(correctAnswersArray);
+    } else {
+      devLog("⚠️ UI module not available, using legacy validation");
+      legacyValidationDisplay(correctAnswers);
+    }
+  } else {
+    devLog("⚠️ App module not available, using legacy validation");
+    legacyValidationDisplay(correctAnswers);
+  }
 
   // Calculate time spent on question
   const timeSpent = questionStartTime
@@ -4926,6 +5000,45 @@ function validateAnswers() {
   
   // Update progress sidebar to reflect answered status
   updateProgressSidebar();
+}
+
+// Legacy validation display (fallback when UI module not available)
+function legacyValidationDisplay(correctAnswers) {
+  devLog("⚠️ Using legacy validation display");
+  
+  const answerElements = document.querySelectorAll(".answer-option");
+  answerElements.forEach((element) => {
+    const letter = element.dataset.answer; // Use data-answer instead of .answer-letter
+    if (!letter) return; // Skip if no letter found
+    
+    const isSelected = selectedAnswers.has(letter);
+    const isCorrect = correctAnswers.has(letter);
+
+    element.classList.add("disabled");
+    element.classList.remove("selected", "correct-not-selected");
+
+    if (isSelected && isCorrect) {
+      element.classList.add("correct-answer");
+    } else if (isSelected && !isCorrect) {
+      element.classList.add("incorrect-answer");
+    } else if (!isSelected && isCorrect) {
+      element.classList.add("missed-answer");
+    }
+  });
+  
+  // Show result message
+  const correctSelected = new Set([...selectedAnswers].filter((x) => correctAnswers.has(x)));
+  const incorrectSelected = new Set([...selectedAnswers].filter((x) => !correctAnswers.has(x)));
+  
+  if (incorrectSelected.size === 0 && correctSelected.size === correctAnswers.size) {
+    showSuccess("Correct! Well done.");
+  } else {
+    const correctAnswersArray = Array.from(correctAnswers);
+    showError(`Incorrect. Correct answer${correctAnswersArray.length > 1 ? 's' : ''}: ${correctAnswersArray.join(', ')}`);
+  }
+  
+  // Update validate button
+  updateValidateButtonState();
 }
 
 // Show validation results
@@ -5011,6 +5124,15 @@ function resetAnswers() {
 
   isValidated = false;
 
+  // CRITICAL: Update global state for module synchronization
+  window.selectedAnswers = selectedAnswers;
+  window.isValidated = isValidated;
+  
+  // Update UI module state if available
+  if (window.uiModule && window.uiModule.updateIsValidated) {
+    window.uiModule.updateIsValidated(false);
+  }
+
   const answerElements = document.querySelectorAll(".answer-option");
   answerElements.forEach((element) => {
     element.className = "answer-option";
@@ -5023,6 +5145,13 @@ function resetAnswers() {
   updateQuestionStatistics();
 
   updateInstructions();
+  
+  // Update validate button state through UI module if available
+  if (window.uiModule && window.uiModule.updateValidateButton) {
+    window.uiModule.updateValidateButton();
+  }
+  
+  console.log('🔄 [RESET] Reset complete - selectedAnswers:', Array.from(selectedAnswers), 'isValidated:', isValidated);
 }
 
 // Toggle highlight
@@ -8427,6 +8556,16 @@ async function navigateToQuestionAsync(index) {
 // Initialize app when DOM is loaded
 document.addEventListener("DOMContentLoaded", async function () {
   devLog("DOM loaded, initializing application...");
+
+  // CRITICAL: Expose navigation functions to window object for hybrid migration
+  window.nextQuestion = async () => await navigateQuestion(1);
+  window.previousQuestion = async () => await navigateQuestion(-1);
+  window.navigateToQuestion = navigateToQuestionIndex;
+  window.goToRandomQuestion = navigateToRandomQuestion;
+  window.toggleSidebar = toggleSidebar;
+  window.resetAnswers = resetAnswers;
+  window.validateAnswers = validateAnswers;
+  console.log('🔄 [NAVIGATION] Navigation functions exposed to window object');
 
   // Add console message for users experiencing autoPip.js errors
   if (isDevelopmentMode()) {
