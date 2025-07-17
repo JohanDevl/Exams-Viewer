@@ -8359,6 +8359,36 @@ async function navigateToQuestionAsync(index) {
   await navigateToQuestionIndex(index);
 }
 
+// Wait for app modules to be ready for proper initialization order
+async function waitForAppModules() {
+  // Wait for app to be available
+  let attempts = 0;
+  const maxAttempts = 50; // 5 seconds max wait
+  
+  while (!window.app && attempts < maxAttempts) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    attempts++;
+  }
+  
+  if (!window.app) {
+    console.warn('App modules not available, proceeding with legacy initialization');
+    return;
+  }
+  
+  // Wait for statistics module to be loaded
+  attempts = 0;
+  while (!window.app.getModule('statistics') && attempts < maxAttempts) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    attempts++;
+  }
+  
+  if (window.app.getModule('statistics')) {
+    console.log('✅ [HYBRID] Statistics module ready for initialization');
+  } else {
+    console.warn('Statistics module not available, using legacy fallback');
+  }
+}
+
 // Initialize app when DOM is loaded
 document.addEventListener("DOMContentLoaded", async function () {
   devLog("DOM loaded, initializing application...");
@@ -8382,6 +8412,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Check for and clear corrupted localStorage data
   clearCorruptedData();
+
+  // HYBRID MODE: Wait for app modules to be ready before loading data
+  await waitForAppModules();
 
   // Load saved data with recovery
   loadSettings();

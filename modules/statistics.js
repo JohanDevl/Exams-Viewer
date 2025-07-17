@@ -17,8 +17,14 @@ let statistics = window.statistics || {
 };
 
 function updateStatistics(newStats) {
+  // Update local statistics object
+  statistics = { ...statistics, ...newStats };
+  
+  // CRITICAL: Always synchronize with window.statistics for legacy compatibility
   if (window.statistics) {
-    Object.assign(window.statistics, newStats);
+    Object.assign(window.statistics, statistics);
+  } else {
+    window.statistics = statistics;
   }
 }
 
@@ -338,10 +344,15 @@ export function loadStatistics() {
         } catch (error) {
           devLog("JSON parse failed, trying decompression for legacy data:", error);
           try {
-            parsed = decompressData(savedStats);
-            devLog("Successfully loaded legacy compressed data");
-            // Save in new format immediately
-            setTimeout(() => saveStatistics(), 1000);
+            // Check if decompressData function is available
+            if (typeof window.decompressData === 'function') {
+              parsed = window.decompressData(savedStats);
+              devLog("Successfully loaded legacy compressed data");
+              // Save in new format immediately
+              setTimeout(() => saveStatistics(), 1000);
+            } else {
+              throw new Error("decompressData function not available");
+            }
           } catch (decompressionError) {
             devError("Both JSON parse and decompression failed:", decompressionError);
             throw decompressionError;
@@ -364,12 +375,18 @@ export function loadStatistics() {
 
       updateStatistics(loadedStats);
 
+      // CRITICAL: Synchronize with window.statistics for legacy system compatibility
+      if (window.statistics) {
+        Object.assign(window.statistics, loadedStats);
+      }
+
       // Recalculate stats to ensure consistency
       recalculateTotalStats();
       
-      devLog(`Loaded statistics: ${statistics.sessions.length} sessions`);
+      devLog(`📊 [STATISTICS MODULE] Loaded statistics: ${statistics.sessions.length} sessions`);
+      console.log('📊 [STATISTICS MODULE] Statistics successfully loaded and synchronized');
     } else {
-      devLog("No saved statistics found, using defaults");
+      devLog("📊 [STATISTICS MODULE] No saved statistics found, using defaults");
     }
   } catch (error) {
     devError("Error loading statistics, resetting to defaults:", error);
