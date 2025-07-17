@@ -387,3 +387,20 @@ export function saveResumePosition(examCode, questionIndex) {
 export function checkResumePosition(examCode) {
   console.log('🧭 [NAVIGATION MODULE] checkResumePosition - stub implementation', examCode);
 }
+
+// Export helper functions for legacy compatibility
+export { 
+  getQuestionStatus, 
+  truncateText, 
+  updateProgressBar, 
+  updateMainProgressBar,
+  getAnsweredQuestionsCount,
+  isQuestionAnswered,
+  isQuestionAnsweredCorrectly,
+  isQuestionAnsweredIncorrectly,
+  isQuestionAnsweredInPreview,
+  isQuestionVisited,
+  isQuestionFavorite,
+  hasQuestionNotes,
+  isQuestionCategorized
+};

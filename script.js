@@ -6990,73 +6990,26 @@ function updateProgressSidebar() {
   }
 }
 
-// Update progress bar
+// Legacy wrapper for updateProgressBar - implementation moved to Navigation module
 function updateProgressBar() {
-  const progressBar = document.getElementById("overallProgress");
-  if (!progressBar || !currentQuestions.length) return;
-  
-  const answeredCount = getAnsweredQuestionsCount();
-  const percentage = (answeredCount / currentQuestions.length) * 100;
-  
-  progressBar.style.width = `${percentage}%`;
-  progressBar.setAttribute("aria-valuenow", percentage.toFixed(1));
-  
-  // Update progress text
-  const progressText = document.getElementById("progressText");
-  if (progressText) {
-    progressText.textContent = `${answeredCount}/${currentQuestions.length} (${percentage.toFixed(1)}%)`;
+  console.log('🔄 [LEGACY] updateProgressBar() wrapper - delegating to Navigation module');
+  if (window.app && window.app.getModule) {
+    const navigationModule = window.app.getModule('navigation');
+    if (navigationModule && navigationModule.updateProgressBar) {
+      navigationModule.updateProgressBar();
+    }
   }
 }
 
-// Update main progress indicator in header
+// Legacy wrapper for updateMainProgressBar - implementation moved to Navigation module
 function updateMainProgressBar() {
-  const mainProgressSection = document.getElementById("mainProgressSection");
-  if (!mainProgressSection || !currentQuestions.length) return;
-
-  // Check if the main progress bar is enabled in settings
-  if (!settings.showMainProgressBar) {
-    mainProgressSection.style.display = "none";
-    return;
+  console.log('🔄 [LEGACY] updateMainProgressBar() wrapper - delegating to Navigation module');
+  if (window.app && window.app.getModule) {
+    const navigationModule = window.app.getModule('navigation');
+    if (navigationModule && navigationModule.updateMainProgressBar) {
+      navigationModule.updateMainProgressBar();
+    }
   }
-
-  // Show the progress section if it's hidden and enabled
-  if (mainProgressSection.style.display === "none") {
-    mainProgressSection.style.display = "block";
-    // Reset milestone states for new exam display
-    resetMilestoneStates();
-  }
-
-  const progressFill = document.getElementById("mainProgressFill");
-  const progressText = document.getElementById("mainProgressText");
-  const progressPercentage = document.getElementById("mainProgressPercentage");
-  const answeredCountMain = document.getElementById("answeredCountMain");
-  const favoritesCountMain = document.getElementById("favoritesCountMain");
-  const remainingCountMain = document.getElementById("remainingCountMain");
-
-  if (!progressFill || !progressText || !progressPercentage) return;
-
-  // Calculate progress metrics
-  const totalQuestions = currentQuestions.length;
-  const answeredCount = getAnsweredQuestionsCount();
-  const favoritesCount = getFavoritesCount();
-  const remainingCount = totalQuestions - answeredCount;
-  const answerPercentage = (answeredCount / totalQuestions) * 100;
-
-  // Update progress bar with smooth animation
-  progressFill.style.width = `${answerPercentage}%`;
-  progressFill.setAttribute("aria-valuenow", answerPercentage.toFixed(1));
-
-  // Update text displays
-  progressText.textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
-  progressPercentage.textContent = `${answerPercentage.toFixed(1)}%`;
-
-  // Update statistics with smooth number transitions
-  if (answeredCountMain) animateNumberChange(answeredCountMain, answeredCount);
-  if (favoritesCountMain) animateNumberChange(favoritesCountMain, favoritesCount);
-  if (remainingCountMain) animateNumberChange(remainingCountMain, remainingCount);
-
-  // Add visual feedback for progress milestones
-  addProgressMilestoneEffects(answerPercentage);
 }
 
 // Get count of favorite questions in current exam
@@ -8112,47 +8065,16 @@ function isQuestionCategorized(questionNumber) {
 let questionStatusCache = new Map();
 
 // Get comprehensive question status (with caching for performance)
+// Legacy wrapper for getQuestionStatus - implementation moved to Navigation module
 function getQuestionStatus(questionNumber) {
-  const cacheKey = `${currentExam?.exam_name || 'unknown'}_${questionNumber}`;
-  
-  // Check cache first (cache is invalidated when statistics change)
-  if (questionStatusCache.has(cacheKey)) {
-    return questionStatusCache.get(cacheKey);
+  if (window.app && window.app.getModule) {
+    const navigationModule = window.app.getModule('navigation');
+    if (navigationModule && navigationModule.getQuestionStatus) {
+      return navigationModule.getQuestionStatus(questionNumber);
+    }
   }
-  
-  const status = {
-    isNew: !isQuestionVisited(questionNumber) && !isQuestionAnswered(questionNumber),
-    isViewed: isQuestionVisited(questionNumber) && !isQuestionAnswered(questionNumber),
-    isAnsweredCorrectly: isQuestionAnsweredCorrectly(questionNumber),
-    isAnsweredIncorrectly: isQuestionAnsweredIncorrectly(questionNumber),
-    isAnsweredInPreview: isQuestionAnsweredInPreview(questionNumber),
-    isFavorite: isQuestionFavorite(questionNumber),
-    hasNotes: hasQuestionNotes(questionNumber),
-    isCategorized: isQuestionCategorized(questionNumber),
-    isAnswered: isQuestionAnswered(questionNumber)
-  };
-  
-  // Determine primary status
-  if (status.isAnsweredCorrectly) {
-    status.primaryStatus = 'correct';
-  } else if (status.isAnsweredIncorrectly) {
-    status.primaryStatus = 'incorrect';
-  } else if (status.isAnsweredInPreview) {
-    status.primaryStatus = 'preview';
-  } else if (status.isViewed) {
-    status.primaryStatus = 'viewed';
-  } else {
-    status.primaryStatus = 'new';
-  }
-  
-  // Cache the result (limit cache size to prevent memory leaks)
-  if (questionStatusCache.size > 200) {
-    const firstKey = questionStatusCache.keys().next().value;
-    questionStatusCache.delete(firstKey);
-  }
-  questionStatusCache.set(cacheKey, status);
-  
-  return status;
+  // Fallback: return basic status
+  return { primaryStatus: 'new', isNew: true, isViewed: false, isAnswered: false };
 }
 
 // Clear question status cache when statistics or favorites change
@@ -8178,7 +8100,15 @@ function trackQuestionVisit(questionNumber) {
 }
 
 // Truncate text for preview
+// Legacy wrapper for truncateText - implementation moved to Navigation module
 function truncateText(text, maxLength) {
+  if (window.app && window.app.getModule) {
+    const navigationModule = window.app.getModule('navigation');
+    if (navigationModule && navigationModule.truncateText) {
+      return navigationModule.truncateText(text, maxLength);
+    }
+  }
+  // Fallback: basic implementation
   if (!text) return "";
   const cleanText = text.replace(/<[^>]*>/g, "").trim();
   return cleanText.length > maxLength ? cleanText.substring(0, maxLength) + "..." : cleanText;
