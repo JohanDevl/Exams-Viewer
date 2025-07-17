@@ -6,7 +6,7 @@
 
 // HYBRID MODE: Access global variables directly
 const lazyLoadingConfig = window.lazyLoadingConfig || { loadedChunks: new Map(), chunkSize: 50, totalChunks: 0, examMetadata: null, isChunkedExam: false, preloadBuffer: 1 };
-const availableExams = window.availableExams || {};
+// Don't cache availableExams - always use window.availableExams directly for fresh data
 let allQuestions = window.allQuestions || [];
 const processEmbeddedImages = window.processEmbeddedImages || ((content) => content);
 
@@ -172,10 +172,10 @@ export function assembleCurrentQuestions() {
 
 // Load exam data (main entry point for exam loading)
 export async function loadExam(examCode) {
-  if (!availableExams[examCode]) {
+  if (!window.availableExams || !window.availableExams[examCode]) {
     throw new Error(
       `Exam code "${examCode}" not found. Available exams: ${Object.keys(
-        availableExams
+        window.availableExams
       ).join(", ")}`
     );
   }
@@ -374,11 +374,11 @@ export function validateExamData(data) {
 
 // Get exam statistics
 export function getExamStats(examCode) {
-  if (!availableExams[examCode]) {
+  if (!window.availableExams || !window.availableExams[examCode]) {
     return null;
   }
 
-  const exam = availableExams[examCode];
+  const exam = window.availableExams ? window.availableExams[examCode] : null;
   return {
     code: examCode,
     name: exam.name || examCode,
