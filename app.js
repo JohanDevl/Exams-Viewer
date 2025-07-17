@@ -475,19 +475,32 @@ class ExamViewerApp {
 
   // Validate current answers
   validateAnswers() {
-    if (!currentQuestions[currentQuestionIndex] || isValidated) {
+    // HYBRID MODE: Use window.* for data loaded by modules
+    const questions = window.currentQuestions || [];
+    const questionIndex = window.currentQuestionIndex || 0;
+    const answers = window.selectedAnswers || new Set();
+    const validated = window.isValidated || false;
+    const startTime = window.questionStartTime || null;
+    
+    console.log('🔍 [APP VALIDATE] Questions:', questions.length, 'Index:', questionIndex, 'Question exists:', !!questions[questionIndex]);
+    
+    if (!questions[questionIndex] || validated) {
+      console.log('🔍 [APP VALIDATE] No question or already validated');
       return;
     }
 
-    const question = currentQuestions[currentQuestionIndex];
+    const question = questions[questionIndex];
     const correctAnswers = question.most_voted || question.correct_answers || [];
-    const userAnswers = Array.from(selectedAnswers);
+    const userAnswers = Array.from(answers);
     
     // Determine if answer is correct
     const isCorrect = this.checkAnswerCorrectness(userAnswers, correctAnswers);
     
     // Calculate time spent
-    const timeSpent = questionStartTime ? Math.floor((Date.now() - questionStartTime) / 1000) : 0;
+    const timeSpent = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+    const highlightEnabled = window.isHighlightEnabled || false;
+    
+    console.log('🔍 [APP VALIDATE] Tracking attempt for question:', question.question_number);
     
     // Track the attempt
     trackQuestionAttempt(
@@ -496,11 +509,12 @@ class ExamViewerApp {
       userAnswers,
       isCorrect,
       timeSpent,
-      isHighlightEnabled
+      highlightEnabled
     );
 
-    // Update state
+    // Update state (both module and window)
     updateIsValidated(true);
+    window.isValidated = true;
 
     // Update UI
     const uiModule = this.modules.get('ui');
@@ -691,7 +705,7 @@ const app = new ExamViewerApp();
 // Global functions for backward compatibility with existing HTML
 window.loadExam = (examCode) => app.loadExam(examCode);
 // window.navigateToQuestion = (index) => app.navigateToQuestion(index);
-// window.validateAnswers = () => app.validateAnswers();
+window.validateAnswers = () => app.validateAnswers();
 // window.toggleDarkMode = toggleDarkMode;
 // window.saveSettings = saveSettings;
 // window.resetAllStatistics = resetAllStatistics;
