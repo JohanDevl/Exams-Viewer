@@ -4778,6 +4778,20 @@ function updateInstructions() {
     selectedAnswers = window.selectedAnswers;
   }
   
+  // Sync other critical state variables
+  if (window.currentQuestionIndex !== undefined) {
+    currentQuestionIndex = window.currentQuestionIndex;
+  }
+  if (window.currentQuestions) {
+    currentQuestions = window.currentQuestions;
+  }
+  if (window.isValidated !== undefined) {
+    isValidated = window.isValidated;
+  }
+  if (window.isHighlightEnabled !== undefined) {
+    isHighlightEnabled = window.isHighlightEnabled;
+  }
+  
   const selectedCount = selectedAnswers.size;
   const validateBtn = document.getElementById("validateBtn");
 
@@ -4827,6 +4841,9 @@ function updateInstructions() {
     validateBtn.style.cursor = "pointer";
     validateBtn.title = "";
   }
+  
+  // Update progress sidebar to reflect any state changes
+  updateProgressSidebar();
 }
 
 // Validate answers
