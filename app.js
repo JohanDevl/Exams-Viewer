@@ -148,6 +148,9 @@ class ExamViewerApp {
     this.modules.set('search', await this.loadModule('./modules/search.js'));
     this.modules.set('export', await this.loadModule('./modules/export.js'));
 
+    // Expose app instance to global scope for module coordination
+    window.app = this;
+
     // Initialize each module
     for (const [name, module] of this.modules) {
       if (module && typeof module.init === 'function') {
@@ -246,6 +249,75 @@ class ExamViewerApp {
     });
 
     console.log(`📋 Populated dropdown with ${sortedExamCodes.length} exams`);
+  }
+
+  // Get module by name
+  getModule(name) {
+    return this.modules.get(name);
+  }
+
+  // Update UI instructions via UI module
+  updateInstructions() {
+    const uiModule = this.modules.get('ui');
+    if (uiModule && uiModule.updateInstructions) {
+      uiModule.updateInstructions();
+    } else {
+      console.warn('🔄 [APP] UI module updateInstructions not available');
+    }
+  }
+
+  // Update progress sidebar via Navigation module
+  updateProgressSidebar() {
+    const navigationModule = this.modules.get('navigation');
+    if (navigationModule && navigationModule.updateProgressSidebar) {
+      navigationModule.updateProgressSidebar();
+    } else {
+      console.warn('🔄 [APP] Navigation module updateProgressSidebar not available');
+    }
+  }
+
+  // Coordinate UI and Navigation updates (common operation)
+  updateUIAndProgress() {
+    this.updateInstructions();
+    this.updateProgressSidebar();
+  }
+
+  // Show question via UI module
+  displayQuestion(questionIndex, fromToggleAction = false) {
+    const uiModule = this.modules.get('ui');
+    if (uiModule && uiModule.displayCurrentQuestion) {
+      // Update global state first
+      updateCurrentQuestionIndex(questionIndex);
+      uiModule.displayCurrentQuestion(fromToggleAction);
+    } else {
+      console.warn('🔄 [APP] UI module displayCurrentQuestion not available');
+    }
+  }
+
+  // Show validation results via UI module
+  showValidationResults(correctAnswers) {
+    const uiModule = this.modules.get('ui');
+    if (uiModule && uiModule.showValidationResults) {
+      uiModule.showValidationResults(correctAnswers);
+    } else {
+      console.warn('🔄 [APP] UI module showValidationResults not available');
+    }
+  }
+
+  // Handle inter-module communication events
+  emitEvent(eventName, data) {
+    console.log(`📡 [APP] Emitting event: ${eventName}`, data);
+    
+    // Notify all modules of the event
+    for (const [name, module] of this.modules) {
+      if (module && typeof module.handleEvent === 'function') {
+        try {
+          module.handleEvent(eventName, data);
+        } catch (error) {
+          console.error(`❌ Error handling event ${eventName} in module ${name}:`, error);
+        }
+      }
+    }
   }
 
   // Handle keyboard shortcuts

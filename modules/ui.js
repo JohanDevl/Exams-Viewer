@@ -904,8 +904,10 @@ export function updateInstructions() {
     }
   }
   
-  // Update progress sidebar via navigation module
-  if (window.navigationModuleUpdateProgressSidebar && typeof window.navigationModuleUpdateProgressSidebar === 'function') {
+  // Update progress sidebar via app coordination or fallback
+  if (window.app && window.app.updateProgressSidebar) {
+    window.app.updateProgressSidebar();
+  } else if (window.navigationModuleUpdateProgressSidebar && typeof window.navigationModuleUpdateProgressSidebar === 'function') {
     window.navigationModuleUpdateProgressSidebar();
   } else if (window.updateProgressSidebar && typeof window.updateProgressSidebar === 'function') {
     // Fallback to legacy function

@@ -4771,9 +4771,15 @@ function updateQuestionStatistics() {
 
 // Legacy wrapper for updateInstructions - actual implementation moved to UI module
 function updateInstructions() {
-  console.log('🔄 [LEGACY] updateInstructions() wrapper called - delegating to UI module');
+  console.log('🔄 [LEGACY] updateInstructions() wrapper called - delegating via app coordination');
   
-  // Delegate to UI module if available
+  // Use app coordination first
+  if (window.app && window.app.updateInstructions) {
+    window.app.updateInstructions();
+    return;
+  }
+  
+  // Fallback: direct module access
   if (window.app && window.app.getModule) {
     const uiModule = window.app.getModule('ui');
     if (uiModule && uiModule.updateInstructions) {
@@ -4782,7 +4788,7 @@ function updateInstructions() {
     }
   }
   
-  // Fallback: call via window if UI module not available
+  // Last resort: call via window if UI module not available
   if (window.uiModuleUpdateInstructions && typeof window.uiModuleUpdateInstructions === 'function') {
     window.uiModuleUpdateInstructions();
   } else {
@@ -6959,9 +6965,15 @@ function isSidebarOpen() {
 // Update progress sidebar with question list
 // Legacy wrapper for updateProgressSidebar - actual implementation moved to Navigation module
 function updateProgressSidebar() {
-  console.log('🔄 [LEGACY] updateProgressSidebar() wrapper called - delegating to Navigation module');
+  console.log('🔄 [LEGACY] updateProgressSidebar() wrapper called - delegating via app coordination');
   
-  // Delegate to Navigation module if available
+  // Use app coordination first
+  if (window.app && window.app.updateProgressSidebar) {
+    window.app.updateProgressSidebar();
+    return;
+  }
+  
+  // Fallback: direct module access
   if (window.app && window.app.getModule) {
     const navigationModule = window.app.getModule('navigation');
     if (navigationModule && navigationModule.updateProgressSidebar) {
@@ -6970,7 +6982,7 @@ function updateProgressSidebar() {
     }
   }
   
-  // Fallback: call via window if Navigation module not available
+  // Last resort: call via window if Navigation module not available
   if (window.navigationModuleUpdateProgressSidebar && typeof window.navigationModuleUpdateProgressSidebar === 'function') {
     window.navigationModuleUpdateProgressSidebar();
   } else {
