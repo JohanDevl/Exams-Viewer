@@ -68,6 +68,9 @@ let statistics = {
   },
 };
 
+// HYBRID MODE: Initialize window.statistics immediately for modules
+window.statistics = statistics;
+
 // Resume position system
 let resumePositions = {
   // examCode: { questionIndex: number, timestamp: number, questionNumber: number, totalQuestions: number, lastSessionId: string }
@@ -459,10 +462,8 @@ function decompressData(compressedData) {
 }
 
 function saveStatistics() {
-  // HYBRID MODE: Ensure statistics are synchronized before saving
-  if (window.statistics) {
-    window.statistics = statistics;
-  }
+  // HYBRID MODE: Always ensure statistics are synchronized before saving
+  window.statistics = statistics;
   
   // HYBRID MIGRATION: Use statistics module from app.js
   if (window.app && window.app.getModule) {
@@ -994,10 +995,8 @@ function startExamSession(examCode, examName) {
   statistics.currentSession = new ExamSession(examCode, examName);
   // Don't set totalQuestions here - it will be calculated dynamically based on actual attempts
 
-  // HYBRID MODE: Ensure window.statistics is synchronized
-  if (window.statistics) {
-    window.statistics = statistics;
-  }
+  // HYBRID MODE: Always ensure window.statistics is synchronized
+  window.statistics = statistics;
 
   devLog("Started new exam session:", statistics.currentSession);
   saveStatistics();
@@ -1018,10 +1017,8 @@ function endCurrentSession() {
     statistics.sessions.push(statistics.currentSession);
     statistics.currentSession = null;
 
-    // HYBRID MODE: Ensure window.statistics is synchronized
-    if (window.statistics) {
-      window.statistics = statistics;
-    }
+    // HYBRID MODE: Always ensure window.statistics is synchronized
+    window.statistics = statistics;
 
     // Recalculate total stats
     recalculateTotalStats();
@@ -1186,10 +1183,8 @@ function resetAllStatistics() {
 
     localStorage.removeItem("examViewerStatistics");
     
-    // HYBRID MODE: Ensure statistics are synchronized after reset
-    if (window.statistics) {
-      window.statistics = statistics;
-    }
+    // HYBRID MODE: Always ensure statistics are synchronized after reset
+    window.statistics = statistics;
     
     showSuccess("Statistics reset successfully");
 
@@ -3924,10 +3919,8 @@ async function loadExam(examCode) {
     // Start exam session for statistics
     startExamSession(examCode, currentExam.exam_name);
     
-    // HYBRID MODE: Ensure statistics are synchronized between systems
-    if (window.statistics) {
-      window.statistics = statistics;
-    }
+    // HYBRID MODE: Always ensure statistics are synchronized between systems
+    window.statistics = statistics;
 
     // Initialize highlight state from settings
     isHighlightEnabled = settings.highlightDefault;
