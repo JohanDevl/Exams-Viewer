@@ -14,12 +14,44 @@ const questionStatusCache = new Map();
 
 // Helper function to sync with global state
 function syncWithGlobalState() {
-  currentQuestions = window.currentQuestions || currentQuestions;
+  const prevQuestionsLength = currentQuestions.length;
+  
+  // Debug what's in window
+  console.log('🧭 [NAVIGATION MODULE] DEBUG - window.currentQuestions:', window.currentQuestions ? window.currentQuestions.length : 'undefined');
+  console.log('🧭 [NAVIGATION MODULE] DEBUG - window.currentQuestionIndex:', window.currentQuestionIndex);
+  console.log('🧭 [NAVIGATION MODULE] DEBUG - window.currentExam:', window.currentExam ? window.currentExam.exam_name : 'undefined');
+  console.log('🧭 [NAVIGATION MODULE] DEBUG - window.statistics:', window.statistics ? 'exists' : 'undefined');
+  console.log('🧭 [NAVIGATION MODULE] DEBUG - window.statistics.currentSession:', window.statistics?.currentSession ? 'exists' : 'undefined');
+  
+  // Force sync with proper fallback
+  if (window.currentQuestions && Array.isArray(window.currentQuestions)) {
+    currentQuestions = window.currentQuestions;
+  } else {
+    console.warn('🧭 [NAVIGATION MODULE] window.currentQuestions is not a valid array:', window.currentQuestions);
+  }
+  
   currentQuestionIndex = window.currentQuestionIndex !== undefined ? window.currentQuestionIndex : currentQuestionIndex;
   settings = window.settings || settings;
-  statistics = window.statistics || statistics;
+  
+  // Enhanced statistics synchronization
+  if (window.statistics) {
+    statistics = {
+      ...statistics,
+      ...window.statistics,
+      // Ensure currentSession is properly transferred
+      currentSession: window.statistics.currentSession || statistics.currentSession || null
+    };
+    console.log('🧭 [NAVIGATION MODULE] Statistics sync - currentSession:', statistics.currentSession ? 'exists' : 'null');
+  }
+  
   favoritesData = window.favoritesData || favoritesData;
   currentExam = window.currentExam || currentExam;
+  
+  if (currentQuestions.length !== prevQuestionsLength) {
+    console.log(`🧭 [NAVIGATION MODULE] Questions count changed: ${prevQuestionsLength} -> ${currentQuestions.length}`);
+  }
+  
+  console.log(`🧭 [NAVIGATION MODULE] State synced - Questions: ${currentQuestions.length}, Index: ${currentQuestionIndex}, Exam: ${currentExam?.exam_name || 'none'}`);
 }
 
 // Helper function: truncate text to max length
@@ -137,18 +169,50 @@ function getQuestionStatus(questionNumber) {
 
 // Get count of answered questions
 function getAnsweredQuestionsCount() {
-  if (!statistics.currentSession) return 0;
+  // Always sync to ensure we have latest statistics
+  syncWithGlobalState();
+  
+  if (!statistics || !statistics.currentSession) {
+    console.log('🧭 [NAVIGATION MODULE] No current session for answered count - statistics:', statistics ? 'exists' : 'null');
+    console.log('🧭 [NAVIGATION MODULE] window.statistics check:', window.statistics ? 'exists' : 'null');
+    console.log('🧭 [NAVIGATION MODULE] window.statistics.currentSession check:', window.statistics?.currentSession ? 'exists' : 'null');
+    return 0;
+  }
+  
   const questions = statistics.currentSession.q || statistics.currentSession.questions || [];
-  return questions.filter(q => q.far !== undefined ? q.far : q.firstActionRecorded).length;
+  const answeredCount = questions.filter(q => {
+    const hasFirstAction = (q.far !== undefined && q.far !== null) || (q.firstActionRecorded !== undefined && q.firstActionRecorded !== null);
+    return hasFirstAction;
+  }).length;
+  
+  console.log(`🧭 [NAVIGATION MODULE] Answered questions: ${answeredCount}/${questions.length} total session questions`);
+  console.log('🧭 [NAVIGATION MODULE] Session questions sample (first 3):', questions.slice(0, 3).map(q => ({
+    qn: q.qn || q.questionNumber,
+    far: q.far || q.firstActionRecorded,
+    fat: q.fat || q.firstActionType
+  })));
+  
+  return answeredCount;
 }
 
 // Update progress bar
 function updateProgressBar() {
   const progressBar = document.getElementById("overallProgress");
-  if (!progressBar || !currentQuestions.length) return;
+  if (!progressBar) return;
   
+  // Sync with global state to ensure we have latest data
+  syncWithGlobalState();
+  
+  if (!currentQuestions.length) {
+    console.log('🧭 [NAVIGATION MODULE] No questions available for progress bar');
+    return;
+  }
+  
+  const totalQuestions = currentQuestions.length;
   const answeredCount = getAnsweredQuestionsCount();
-  const percentage = (answeredCount / currentQuestions.length) * 100;
+  const percentage = (answeredCount / totalQuestions) * 100;
+  
+  console.log(`🧭 [NAVIGATION MODULE] Progress bar: ${answeredCount}/${totalQuestions} (${percentage.toFixed(1)}%)`);
   
   progressBar.style.width = `${percentage}%`;
   progressBar.setAttribute("aria-valuenow", percentage.toFixed(1));
@@ -156,14 +220,22 @@ function updateProgressBar() {
   // Update progress text
   const progressText = document.getElementById("progressText");
   if (progressText) {
-    progressText.textContent = `${answeredCount}/${currentQuestions.length} (${percentage.toFixed(1)}%)`;
+    progressText.textContent = `${answeredCount}/${totalQuestions} (${percentage.toFixed(1)}%)`;
   }
 }
 
 // Update main progress indicator in header
 function updateMainProgressBar() {
   const mainProgressSection = document.getElementById("mainProgressSection");
-  if (!mainProgressSection || !currentQuestions.length) return;
+  if (!mainProgressSection) return;
+
+  // Sync with global state to ensure we have latest data
+  syncWithGlobalState();
+  
+  if (!currentQuestions.length) {
+    console.log('🧭 [NAVIGATION MODULE] No questions available for main progress bar');
+    return;
+  }
 
   // Check if the main progress bar is enabled in settings
   if (!settings.showMainProgressBar) {
@@ -176,17 +248,27 @@ function updateMainProgressBar() {
     mainProgressSection.style.display = "block";
   }
 
+  const totalQuestions = currentQuestions.length;
   const answeredCount = getAnsweredQuestionsCount();
-  const percentage = (answeredCount / currentQuestions.length) * 100;
+  const percentage = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
   
+  console.log(`🧭 [NAVIGATION MODULE] Main progress: ${answeredCount}/${totalQuestions} (${percentage.toFixed(1)}%)`);
+  
+  // Update progress bar
   const progressBar = mainProgressSection.querySelector('.main-progress-fill');
   if (progressBar) {
     progressBar.style.width = `${percentage}%`;
   }
   
+  // Update text displays - show current question position AND answer progress
   const progressText = mainProgressSection.querySelector('.main-progress-text');
   if (progressText) {
-    progressText.textContent = `${answeredCount}/${currentQuestions.length} questions answered (${percentage.toFixed(1)}%)`;
+    progressText.textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
+  }
+  
+  const progressPercentage = mainProgressSection.querySelector('.main-progress-percentage');
+  if (progressPercentage) {
+    progressPercentage.textContent = `${answeredCount}/${totalQuestions} answered (${percentage.toFixed(1)}%)`;
   }
 }
 
