@@ -459,6 +459,11 @@ function decompressData(compressedData) {
 }
 
 function saveStatistics() {
+  // HYBRID MODE: Ensure statistics are synchronized before saving
+  if (window.statistics) {
+    window.statistics = statistics;
+  }
+  
   // HYBRID MIGRATION: Use statistics module from app.js
   if (window.app && window.app.getModule) {
     const statsModule = window.app.getModule('statistics');
@@ -989,6 +994,11 @@ function startExamSession(examCode, examName) {
   statistics.currentSession = new ExamSession(examCode, examName);
   // Don't set totalQuestions here - it will be calculated dynamically based on actual attempts
 
+  // HYBRID MODE: Ensure window.statistics is synchronized
+  if (window.statistics) {
+    window.statistics = statistics;
+  }
+
   devLog("Started new exam session:", statistics.currentSession);
   saveStatistics();
 }
@@ -1007,6 +1017,11 @@ function endCurrentSession() {
     // Add to sessions history
     statistics.sessions.push(statistics.currentSession);
     statistics.currentSession = null;
+
+    // HYBRID MODE: Ensure window.statistics is synchronized
+    if (window.statistics) {
+      window.statistics = statistics;
+    }
 
     // Recalculate total stats
     recalculateTotalStats();
@@ -1170,6 +1185,12 @@ function resetAllStatistics() {
     };
 
     localStorage.removeItem("examViewerStatistics");
+    
+    // HYBRID MODE: Ensure statistics are synchronized after reset
+    if (window.statistics) {
+      window.statistics = statistics;
+    }
+    
     showSuccess("Statistics reset successfully");
 
     // Refresh statistics display if open
@@ -3902,6 +3923,11 @@ async function loadExam(examCode) {
 
     // Start exam session for statistics
     startExamSession(examCode, currentExam.exam_name);
+    
+    // HYBRID MODE: Ensure statistics are synchronized between systems
+    if (window.statistics) {
+      window.statistics = statistics;
+    }
 
     // Initialize highlight state from settings
     isHighlightEnabled = settings.highlightDefault;
@@ -4749,6 +4775,9 @@ function updateInstructions() {
   const selectedCount = selectedAnswers.size;
   const validateBtn = document.getElementById("validateBtn");
 
+  console.log('🔍 [MAIN SCRIPT] updateInstructions() called - selectedAnswers:', Array.from(selectedAnswers), 'size:', selectedCount);
+  console.log('🔍 [MAIN SCRIPT] isHighlightEnabled:', isHighlightEnabled, 'isValidated:', isValidated);
+
   if (isHighlightEnabled) {
     instructions.className = "answer-instructions warning";
     instructions.innerHTML =
@@ -4768,9 +4797,11 @@ function updateInstructions() {
   } else {
     instructions.className = "answer-instructions success";
     const selectedLetters = Array.from(selectedAnswers).sort();
-    instructions.innerHTML = `<i class="fas fa-check-circle"></i><span>Selected: ${selectedLetters.join(
-      ", "
-    )}</span>`;
+    const selectedMessage = `Selected: ${selectedLetters.join(", ")}`;
+    instructions.innerHTML = `<i class="fas fa-check-circle"></i><span>${selectedMessage}</span>`;
+    console.log('🔍 [MAIN SCRIPT] Setting "Selected:" message:', selectedMessage);
+    console.log('🔍 [MAIN SCRIPT] Instructions element:', instructions);
+    console.log('🔍 [MAIN SCRIPT] Instructions innerHTML after setting:', instructions.innerHTML);
     // Only show reset button after validation, not just when answers are selected
     if (!isValidated) {
       document.getElementById("resetBtn").style.display = "none";
@@ -5070,6 +5101,8 @@ function showValidationResults(correctAnswers) {
 
 // Reset answers
 function resetAnswers() {
+  console.log('🔄 [RESET DEBUG] resetAnswers() called');
+  console.trace('🔄 [RESET DEBUG] Call stack:');
   selectedAnswers.clear();
 
   // Track reset count for the current question
@@ -8496,8 +8529,14 @@ async function navigateToQuestionIndex(newIndex, addToHistory = true) {
     // Set current index immediately for responsive UI
     currentQuestionIndex = newIndex;
     
+    // CRITICAL: Update global state for module synchronization
+    window.currentQuestionIndex = newIndex;
+    
     // Reset highlight override when navigating to a new question
     isHighlightTemporaryOverride = false;
+    
+    // Update global state for module synchronization
+    window.isHighlightTemporaryOverride = isHighlightTemporaryOverride;
     
     // Check if we need to load a chunk for this question
     if (lazyLoadingConfig.isChunkedExam && currentQuestions[newIndex]?.isPlaceholder) {
@@ -8582,6 +8621,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   loadStatistics();
   loadFavorites();
   loadResumePositions();
+  
+  // HYBRID MODE: Ensure window.statistics is synchronized after loading
+  window.statistics = statistics;
   
   // Clean up old resume positions
   cleanupResumePositions();
