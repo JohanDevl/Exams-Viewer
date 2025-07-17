@@ -1015,12 +1015,16 @@ function recalculateTotalStats() {
 
 // Start a new exam session
 function startExamSession(examCode, examName) {
+  console.log('📊 [SESSION] startExamSession() called with:', examCode, examName);
+  
   // End current session if exists
   if (statistics.currentSession) {
+    console.log('📊 [SESSION] Ending existing session before starting new one');
     endCurrentSession();
   }
 
   statistics.currentSession = new ExamSession(examCode, examName);
+  console.log('📊 [SESSION] New session created:', statistics.currentSession);
   // Don't set totalQuestions here - it will be calculated dynamically based on actual attempts
 
   // HYBRID MODE: Always ensure window.statistics is synchronized
