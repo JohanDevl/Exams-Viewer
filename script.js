@@ -4772,10 +4772,17 @@ function updateQuestionStatistics() {
 // Update instructions
 function updateInstructions() {
   const instructions = document.getElementById("answerInstructions");
+  
+  // Sync with window.selectedAnswers to ensure we have the latest state from UI module
+  if (window.selectedAnswers) {
+    selectedAnswers = window.selectedAnswers;
+  }
+  
   const selectedCount = selectedAnswers.size;
   const validateBtn = document.getElementById("validateBtn");
 
   console.log('🔍 [MAIN SCRIPT] updateInstructions() called - selectedAnswers:', Array.from(selectedAnswers), 'size:', selectedCount);
+  console.log('🔍 [MAIN SCRIPT] window.selectedAnswers:', Array.from(window.selectedAnswers || new Set()));
   console.log('🔍 [MAIN SCRIPT] isHighlightEnabled:', isHighlightEnabled, 'isValidated:', isValidated);
 
   if (isHighlightEnabled) {
