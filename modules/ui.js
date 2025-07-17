@@ -904,8 +904,11 @@ export function updateInstructions() {
     }
   }
   
-  // Update progress sidebar via global function (will be moved to navigation module later)
-  if (window.updateProgressSidebar && typeof window.updateProgressSidebar === 'function') {
+  // Update progress sidebar via navigation module
+  if (window.navigationModuleUpdateProgressSidebar && typeof window.navigationModuleUpdateProgressSidebar === 'function') {
+    window.navigationModuleUpdateProgressSidebar();
+  } else if (window.updateProgressSidebar && typeof window.updateProgressSidebar === 'function') {
+    // Fallback to legacy function
     window.updateProgressSidebar();
   }
   

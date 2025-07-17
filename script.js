@@ -6957,161 +6957,25 @@ function isSidebarOpen() {
 }
 
 // Update progress sidebar with question list
+// Legacy wrapper for updateProgressSidebar - actual implementation moved to Navigation module
 function updateProgressSidebar() {
-  const sidebar = document.getElementById("progressSidebar");
-  if (!sidebar || !currentQuestions.length) return;
+  console.log('🔄 [LEGACY] updateProgressSidebar() wrapper called - delegating to Navigation module');
   
-  const questionList = sidebar.querySelector(".question-list");
-  if (!questionList) return;
-  
-  // Generate question items with enhanced status indicators
-  const items = currentQuestions.map((question, index) => {
-    const isCurrentQuestion = index === currentQuestionIndex;
-    const isPlaceholder = question.isPlaceholder;
-    
-    let statusClass = "";
-    let statusIcon = "";
-    let questionPreview = "";
-    let statusBadges = "";
-    
-    if (isPlaceholder) {
-      statusClass = "loading";
-      statusIcon = '<i class="fas fa-spinner fa-spin"></i>';
-      questionPreview = `Chunk ${question.chunkId + 1} - Loading...`;
-    } else {
-      const questionStatus = getQuestionStatus(question.question_number);
-      questionPreview = truncateText(question.question || "", 60);
-      
-      // Determine main status class and icon based on current question and status
-      if (isCurrentQuestion) {
-        statusClass = "current";
-        statusIcon = '<i class="fas fa-arrow-right"></i>';
-      } else {
-        statusClass = questionStatus.primaryStatus;
-        
-        // Set icon based on primary status
-        switch (questionStatus.primaryStatus) {
-          case 'correct':
-            statusIcon = '<i class="fas fa-check-circle"></i>';
-            break;
-          case 'incorrect':
-            statusIcon = '<i class="fas fa-times-circle"></i>';
-            break;
-          case 'preview':
-            statusIcon = '<i class="fas fa-lightbulb"></i>';
-            break;
-          case 'viewed':
-            statusIcon = '<i class="fas fa-eye"></i>';
-            break;
-          case 'new':
-          default:
-            statusIcon = '<i class="far fa-circle"></i>';
-            break;
-        }
-      }
-      
-      // Generate status badges
-      const badges = [];
-      
-      // Primary status badge
-      let primaryBadgeText = "";
-      let primaryBadgeIcon = "";
-      let primaryBadgeClass = questionStatus.primaryStatus;
-      
-      switch (questionStatus.primaryStatus) {
-        case 'correct':
-          primaryBadgeText = "Correct";
-          primaryBadgeIcon = '<i class="fas fa-check"></i>';
-          break;
-        case 'incorrect':
-          primaryBadgeText = "Wrong";
-          primaryBadgeIcon = '<i class="fas fa-times"></i>';
-          break;
-        case 'preview':
-          primaryBadgeText = "Preview";
-          primaryBadgeIcon = '<i class="fas fa-lightbulb"></i>';
-          break;
-        case 'viewed':
-          primaryBadgeText = "Viewed";
-          primaryBadgeIcon = '<i class="fas fa-eye"></i>';
-          break;
-        case 'new':
-          primaryBadgeText = "New";
-          primaryBadgeIcon = '<i class="fas fa-circle"></i>';
-          break;
-      }
-      
-      badges.push(`
-        <span class="status-badge ${primaryBadgeClass}" aria-label="${primaryBadgeText} question">
-          ${primaryBadgeIcon}
-          ${primaryBadgeText}
-        </span>
-      `);
-      
-      // Secondary badges for additional properties
-      if (questionStatus.isFavorite) {
-        badges.push(`
-          <span class="status-badge favorite" aria-label="Favorited question">
-            <i class="fas fa-star"></i>
-          </span>
-        `);
-      }
-      
-      if (questionStatus.hasNotes) {
-        badges.push(`
-          <span class="status-badge with-notes" aria-label="Question has notes">
-            <i class="fas fa-sticky-note"></i>
-          </span>
-        `);
-      }
-      
-      if (questionStatus.isCategorized) {
-        badges.push(`
-          <span class="status-badge categorized" aria-label="Question is categorized">
-            <i class="fas fa-tag"></i>
-          </span>
-        `);
-      }
-      
-      statusBadges = `
-        <div class="question-status-indicators">
-          <div class="primary-status">
-            ${badges[0]}
-          </div>
-          <div class="secondary-badges">
-            ${badges.slice(1).join('')}
-          </div>
-        </div>
-      `;
+  // Delegate to Navigation module if available
+  if (window.app && window.app.getModule) {
+    const navigationModule = window.app.getModule('navigation');
+    if (navigationModule && navigationModule.updateProgressSidebar) {
+      navigationModule.updateProgressSidebar();
+      return;
     }
-    
-    return `
-      <div class="question-item question-item-enhanced ${statusClass}" data-index="${index}" onclick="navigateToQuestionAsync(${index})">
-        <div class="question-number">
-          ${statusIcon}
-          <span>Q${question.question_number || index + 1}</span>
-        </div>
-        <div class="question-preview">${questionPreview}</div>
-        ${statusBadges}
-      </div>
-    `;
-  }).join("");
+  }
   
-  questionList.innerHTML = items;
-  
-  // Update progress bar
-  updateProgressBar();
-  
-  // Update main progress bar
-  updateMainProgressBar();
-  
-  // Scroll current question into view
-  setTimeout(() => {
-    const currentItem = questionList.querySelector(".question-item.current");
-    if (currentItem) {
-      currentItem.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }, 100);
+  // Fallback: call via window if Navigation module not available
+  if (window.navigationModuleUpdateProgressSidebar && typeof window.navigationModuleUpdateProgressSidebar === 'function') {
+    window.navigationModuleUpdateProgressSidebar();
+  } else {
+    console.warn('🔄 [LEGACY] Navigation module updateProgressSidebar not available');
+  }
 }
 
 // Update progress bar
