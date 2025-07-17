@@ -689,7 +689,7 @@ const app = new ExamViewerApp();
 // These will be gradually uncommented as we migrate functionality
 
 // Global functions for backward compatibility with existing HTML
-// window.loadExam = (examCode) => app.loadExam(examCode);
+window.loadExam = (examCode) => app.loadExam(examCode);
 // window.navigateToQuestion = (index) => app.navigateToQuestion(index);
 // window.validateAnswers = () => app.validateAnswers();
 // window.toggleDarkMode = toggleDarkMode;

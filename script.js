@@ -3238,7 +3238,14 @@ function setupEventListeners() {
   document.getElementById("examCode").addEventListener("change", function (e) {
     const examCode = this.value.trim().toUpperCase();
     if (examCode) {
-      loadExam(examCode);
+      console.log('🔄 [EXAM LOADING] Using app.js loadExam instead of script.js');
+      if (window.app && window.app.loadExam) {
+        // Use app.js method which properly manages sessions
+        window.app.loadExam(examCode);
+      } else {
+        console.warn('🔄 [EXAM LOADING] App not available, falling back to script.js loadExam');
+        loadExam(examCode);
+      }
     }
   });
 
