@@ -4769,81 +4769,25 @@ function updateQuestionStatistics() {
   }
 }
 
-// Update instructions
+// Legacy wrapper for updateInstructions - actual implementation moved to UI module
 function updateInstructions() {
-  const instructions = document.getElementById("answerInstructions");
+  console.log('🔄 [LEGACY] updateInstructions() wrapper called - delegating to UI module');
   
-  // Sync with window.selectedAnswers to ensure we have the latest state from UI module
-  if (window.selectedAnswers) {
-    selectedAnswers = window.selectedAnswers;
-  }
-  
-  // Sync other critical state variables
-  if (window.currentQuestionIndex !== undefined) {
-    currentQuestionIndex = window.currentQuestionIndex;
-  }
-  if (window.currentQuestions) {
-    currentQuestions = window.currentQuestions;
-  }
-  if (window.isValidated !== undefined) {
-    isValidated = window.isValidated;
-  }
-  if (window.isHighlightEnabled !== undefined) {
-    isHighlightEnabled = window.isHighlightEnabled;
-  }
-  
-  const selectedCount = selectedAnswers.size;
-  const validateBtn = document.getElementById("validateBtn");
-
-  console.log('🔍 [MAIN SCRIPT] updateInstructions() called - selectedAnswers:', Array.from(selectedAnswers), 'size:', selectedCount);
-  console.log('🔍 [MAIN SCRIPT] window.selectedAnswers:', Array.from(window.selectedAnswers || new Set()));
-  console.log('🔍 [MAIN SCRIPT] isHighlightEnabled:', isHighlightEnabled, 'isValidated:', isValidated);
-
-  if (isHighlightEnabled) {
-    instructions.className = "answer-instructions warning";
-    instructions.innerHTML =
-      '<i class="fas fa-lightbulb"></i><span>Highlight mode is active - correct answers are shown. Disable highlight to validate your answers.</span>';
-    // Hide reset button when highlight is active
-    if (!isValidated) {
-      document.getElementById("resetBtn").style.display = "none";
+  // Delegate to UI module if available
+  if (window.app && window.app.getModule) {
+    const uiModule = window.app.getModule('ui');
+    if (uiModule && uiModule.updateInstructions) {
+      uiModule.updateInstructions();
+      return;
     }
-  } else if (selectedCount === 0) {
-    instructions.className = "answer-instructions";
-    instructions.innerHTML =
-      '<i class="fas fa-info-circle"></i><span>Click on the answers to select them</span>';
-    // Hide reset button when no answers are selected and not validated
-    if (!isValidated) {
-      document.getElementById("resetBtn").style.display = "none";
-    }
+  }
+  
+  // Fallback: call via window if UI module not available
+  if (window.uiModuleUpdateInstructions && typeof window.uiModuleUpdateInstructions === 'function') {
+    window.uiModuleUpdateInstructions();
   } else {
-    instructions.className = "answer-instructions success";
-    const selectedLetters = Array.from(selectedAnswers).sort();
-    const selectedMessage = `Selected: ${selectedLetters.join(", ")}`;
-    instructions.innerHTML = `<i class="fas fa-check-circle"></i><span>${selectedMessage}</span>`;
-    console.log('🔍 [MAIN SCRIPT] Setting "Selected:" message:', selectedMessage);
-    console.log('🔍 [MAIN SCRIPT] Instructions element:', instructions);
-    console.log('🔍 [MAIN SCRIPT] Instructions innerHTML after setting:', instructions.innerHTML);
-    // Only show reset button after validation, not just when answers are selected
-    if (!isValidated) {
-      document.getElementById("resetBtn").style.display = "none";
-    }
+    console.warn('🔄 [LEGACY] UI module updateInstructions not available');
   }
-
-  // Disable validate button when highlight is active
-  if (isHighlightEnabled) {
-    validateBtn.disabled = true;
-    validateBtn.style.opacity = "0.5";
-    validateBtn.style.cursor = "not-allowed";
-    validateBtn.title = "Disable highlight mode to validate answers";
-  } else {
-    validateBtn.disabled = false;
-    validateBtn.style.opacity = "1";
-    validateBtn.style.cursor = "pointer";
-    validateBtn.title = "";
-  }
-  
-  // Update progress sidebar to reflect any state changes
-  updateProgressSidebar();
 }
 
 // Validate answers

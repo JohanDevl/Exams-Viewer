@@ -95,7 +95,7 @@ function processEmbeddedImages(htmlContent, imagesData) {
 
 // Sync with global state
 function syncWithGlobalState() {
-  // Always sync these critical variables
+  // Always sync these critical variables - use window value if available, otherwise keep current
   currentExam = window.currentExam || currentExam;
   currentQuestions = window.currentQuestions || currentQuestions;
   currentQuestionIndex = window.currentQuestionIndex !== undefined ? window.currentQuestionIndex : currentQuestionIndex;
@@ -117,6 +117,9 @@ export function init() {
   
   // Initial sync with global state
   syncWithGlobalState();
+  
+  // Expose updateInstructions for legacy compatibility
+  window.uiModuleUpdateInstructions = updateInstructions;
   
   console.log('✅ [UI MODULE] UI module initialized');
 }
@@ -178,6 +181,8 @@ export function displayCurrentQuestion(fromToggleAction = false) {
   syncWithGlobalState();
   
   console.log(`🎯 [UI MODULE] displayCurrentQuestion(${fromToggleAction}) - Index: ${currentQuestionIndex}, Questions: ${currentQuestions.length}`);
+  console.log(`🎯 [UI MODULE] Global state check - currentQuestionIndex: ${window.currentQuestionIndex}, currentQuestions.length: ${window.currentQuestions?.length}`);
+  console.trace('🎯 [UI MODULE] displayCurrentQuestion call stack:');
   
   if (!currentQuestions || currentQuestions.length === 0) {
     console.warn('🎯 [UI MODULE] No questions available to display');
@@ -237,6 +242,9 @@ export function displayCurrentQuestion(fromToggleAction = false) {
     // Update all UI state elements
     updateAllUIState(question);
 
+    // Update instructions to reset answer instructions when displaying a new question
+    updateInstructions();
+
     console.log(`✅ [UI MODULE] Question ${currentQuestionIndex + 1} displayed successfully`);
 
   } catch (error) {
@@ -289,10 +297,16 @@ function showMainContent() {
 
 // Update question display elements
 function updateQuestionDisplay(question) {
-  // Update question number
-  const questionNumberEl = document.getElementById("questionNumber");
-  if (questionNumberEl) {
-    questionNumberEl.textContent = `Question ${question.question_number}`;
+  // Update question title (matches HTML element ID)
+  const questionTitle = document.getElementById("questionTitle");
+  if (questionTitle) {
+    questionTitle.textContent = `Question ${question.question_number || currentQuestionIndex + 1}`;
+  }
+
+  // Update exam topics link
+  const examTopicsLink = document.getElementById("examTopicsLink");
+  if (examTopicsLink) {
+    examTopicsLink.href = question.link || "#";
   }
 
   // Update question counter
@@ -389,8 +403,12 @@ function updateAnswersSection(question) {
 
 // Toggle answer selection
 function toggleAnswerSelection(letter) {
+  console.log(`🎯 [UI MODULE] toggleAnswerSelection(${letter}) - BEFORE - isValidated: ${isValidated}, window.isValidated: ${window.isValidated}`);
+  
   // Sync with global state first
   syncWithGlobalState();
+  
+  console.log(`🎯 [UI MODULE] toggleAnswerSelection(${letter}) - AFTER SYNC - isValidated: ${isValidated}, window.isValidated: ${window.isValidated}`);
   
   const newSelectedAnswers = new Set(selectedAnswers);
   
@@ -418,14 +436,8 @@ function toggleAnswerSelection(letter) {
   updateValidateButton();
   
   // Update instructions to reflect new selection state
-  if (window.updateInstructions && typeof window.updateInstructions === 'function') {
-    window.updateInstructions();
-  }
-  
-  // Also call legacy function if it exists for backward compatibility
-  if (window.updateValidateButtonState && typeof window.updateValidateButtonState === 'function') {
-    window.updateValidateButtonState();
-  }
+  console.log('🔍 [UI MODULE] Calling updateInstructions() after selection change');
+  updateInstructions();
 }
 
 // Update discussion section
@@ -577,17 +589,30 @@ export function updateValidateButton() {
   isValidated = window.isValidated || isValidated;
   
   const validateBtn = document.getElementById('validateBtn');
-  if (!validateBtn) return;
+  const resetBtn = document.getElementById('resetBtn');
+  
+  if (!validateBtn || !resetBtn) return;
 
   const hasSelection = selectedAnswers.size > 0;
-  validateBtn.disabled = !hasSelection || isValidated;
   
+  console.log('🔍 [UI MODULE] updateValidateButton - hasSelection:', hasSelection, 'isValidated:', isValidated);
+  
+  // Update button visibility and state based on validation state
   if (isValidated) {
-    validateBtn.textContent = 'Validated';
-    validateBtn.classList.add('validated');
+    // If already validated, show reset button and hide validate button
+    validateBtn.style.display = "none";
+    resetBtn.style.display = "inline-flex";
   } else {
+    // If not validated, show validate button and hide reset button
+    validateBtn.style.display = "inline-flex";
+    resetBtn.style.display = "none";
+    
+    // Update validate button state - enable when user has made selection
+    validateBtn.disabled = !hasSelection;
     validateBtn.textContent = 'Validate Answers';
     validateBtn.classList.remove('validated');
+    
+    console.log(`🔍 [UI MODULE] Button state set - Validate: visible & ${hasSelection ? 'enabled' : 'disabled'}, Reset: hidden`);
   }
 }
 
@@ -812,6 +837,79 @@ export function setupTouchGestures() {
   }, { passive: true });
 
   console.log('✅ [UI MODULE] Touch gestures setup complete');
+}
+
+// Update answer instructions display
+export function updateInstructions() {
+  console.log('🎨 [UI MODULE] updateInstructions() called');
+  
+  const instructions = document.getElementById("answerInstructions");
+  if (!instructions) {
+    console.warn('🎨 [UI MODULE] Answer instructions element not found');
+    return;
+  }
+  
+  // Sync with global state before updating
+  syncWithGlobalState();
+  
+  const selectedCount = selectedAnswers.size;
+  const validateBtn = document.getElementById("validateBtn");
+
+  console.log('🎨 [UI MODULE] selectedAnswers:', Array.from(selectedAnswers), 'size:', selectedCount);
+  console.log('🎨 [UI MODULE] isHighlightEnabled:', isHighlightEnabled, 'isValidated:', isValidated);
+
+  if (isHighlightEnabled) {
+    instructions.className = "answer-instructions warning";
+    instructions.innerHTML =
+      '<i class="fas fa-lightbulb"></i><span>Highlight mode is active - correct answers are shown. Disable highlight to validate your answers.</span>';
+    // Hide reset button when highlight is active
+    if (!isValidated) {
+      const resetBtn = document.getElementById("resetBtn");
+      if (resetBtn) resetBtn.style.display = "none";
+    }
+  } else if (selectedCount === 0) {
+    instructions.className = "answer-instructions";
+    instructions.innerHTML =
+      '<i class="fas fa-info-circle"></i><span>Click on the answers to select them</span>';
+    // Hide reset button when no answers are selected and not validated
+    if (!isValidated) {
+      const resetBtn = document.getElementById("resetBtn");
+      if (resetBtn) resetBtn.style.display = "none";
+    }
+  } else {
+    instructions.className = "answer-instructions success";
+    const selectedLetters = Array.from(selectedAnswers).sort();
+    const selectedMessage = `Selected: ${selectedLetters.join(", ")}`;
+    instructions.innerHTML = `<i class="fas fa-check-circle"></i><span>${selectedMessage}</span>`;
+    console.log('🎨 [UI MODULE] Setting "Selected:" message:', selectedMessage);
+    // Only show reset button after validation, not just when answers are selected
+    if (!isValidated) {
+      const resetBtn = document.getElementById("resetBtn");
+      if (resetBtn) resetBtn.style.display = "none";
+    }
+  }
+
+  // Disable validate button when highlight is active
+  if (validateBtn) {
+    if (isHighlightEnabled) {
+      validateBtn.disabled = true;
+      validateBtn.style.opacity = "0.5";
+      validateBtn.style.cursor = "not-allowed";
+      validateBtn.title = "Disable highlight mode to validate answers";
+    } else {
+      validateBtn.disabled = false;
+      validateBtn.style.opacity = "1";
+      validateBtn.style.cursor = "pointer";
+      validateBtn.title = "";
+    }
+  }
+  
+  // Update progress sidebar via global function (will be moved to navigation module later)
+  if (window.updateProgressSidebar && typeof window.updateProgressSidebar === 'function') {
+    window.updateProgressSidebar();
+  }
+  
+  console.log('✅ [UI MODULE] Instructions updated successfully');
 }
 
 // Export main UI functions for backward compatibility
