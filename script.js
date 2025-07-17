@@ -612,28 +612,50 @@ function clearCorruptedData() {
 }
 
 function loadStatistics() {
+  console.log('📊 [STATISTICS] Starting loadStatistics()...');
+  console.log('📊 [STATISTICS] window.app exists:', !!window.app);
+  console.log('📊 [STATISTICS] window.app.getModule exists:', !!(window.app && window.app.getModule));
+  
   // HYBRID MIGRATION: Use statistics module from app.js
   if (window.app && window.app.getModule) {
     const statsModule = window.app.getModule('statistics');
+    console.log('📊 [STATISTICS] Statistics module found:', !!statsModule);
+    console.log('📊 [STATISTICS] Module loadStatistics function:', !!(statsModule && statsModule.loadStatistics));
+    
     if (statsModule && statsModule.loadStatistics) {
       try {
         statsModule.loadStatistics();
         console.log('📊 [STATISTICS MODULE] Statistics loaded via modern module');
+        
+        // Ensure synchronization after module load
+        if (window.statistics) {
+          statistics = window.statistics;
+          console.log('📊 [STATISTICS] Synchronized from window.statistics - sessions:', statistics.sessions?.length || 0);
+        }
         return;
       } catch (error) {
         console.warn('Statistics module failed, falling back to legacy method:', error);
       }
+    } else {
+      console.log('📊 [STATISTICS] Statistics module not available, using legacy method');
     }
+  } else {
+    console.log('📊 [STATISTICS] App modules not available, using legacy method');
   }
   
   // Fallback to legacy method
+  console.log('📊 [STATISTICS] Using legacy loadStatisticsLegacy()');
   loadStatisticsLegacy();
 }
 
 // Legacy implementation (renamed)
 function loadStatisticsLegacy() {
+  console.log('📊 [STATISTICS LEGACY] Starting loadStatisticsLegacy()...');
   try {
     const savedStats = localStorage.getItem("examViewerStatistics");
+    console.log('📊 [STATISTICS LEGACY] localStorage data exists:', !!savedStats);
+    console.log('📊 [STATISTICS LEGACY] localStorage data length:', savedStats ? savedStats.length : 0);
+    
     if (savedStats) {
       // Try regular JSON parse first, then fall back to decompression for legacy data
       let parsed;
@@ -844,7 +866,13 @@ function loadStatisticsLegacy() {
       // Save the migrated statistics
       saveStatistics();
 
+      console.log('📊 [STATISTICS LEGACY] Statistics loaded and migrated from localStorage');
+      console.log('📊 [STATISTICS LEGACY] Total sessions loaded:', statistics.sessions.length);
+      console.log('📊 [STATISTICS LEGACY] Current session:', !!statistics.currentSession);
       devLog("Statistics loaded and migrated from localStorage:", statistics);
+    } else {
+      console.log('📊 [STATISTICS LEGACY] No saved statistics found in localStorage');
+      console.log('📊 [STATISTICS LEGACY] Using default empty statistics');
     }
   } catch (error) {
     devError("Error loading statistics:", error);
