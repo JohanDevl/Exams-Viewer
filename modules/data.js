@@ -5,10 +5,27 @@
 // For hybrid mode, we make this module more autonomous
 
 // HYBRID MODE: Access global variables directly
-const lazyLoadingConfig = window.lazyLoadingConfig || { loadedChunks: new Map(), chunkSize: 50, totalChunks: 0, examMetadata: null, isChunkedExam: false, preloadBuffer: 1 };
-// Don't cache availableExams - always use window.availableExams directly for fresh data
+// Don't cache any global objects - always use window.* directly for fresh data  
 let allQuestions = window.allQuestions || [];
 const processEmbeddedImages = window.processEmbeddedImages || ((content) => content);
+
+// Helper to get lazyLoadingConfig with fallback and ensure initialization
+function initLazyLoadingConfig() {
+  if (!window.lazyLoadingConfig) {
+    window.lazyLoadingConfig = { 
+      loadedChunks: new Map(), 
+      chunkSize: 50, 
+      totalChunks: 0, 
+      examMetadata: null, 
+      isChunkedExam: false, 
+      preloadBuffer: 1 
+    };
+  }
+}
+
+// Always ensure config is initialized and use window reference directly
+initLazyLoadingConfig();
+const lazyLoadingConfig = window.lazyLoadingConfig;
 
 // Check if an exam has chunked version for lazy loading
 async function checkForChunkedExam(examCode) {
@@ -25,11 +42,9 @@ async function checkForChunkedExam(examCode) {
       console.log(`🧩 Chunked exam detected: ${examCode} (${metadata.total_questions} questions, ${metadata.total_chunks} chunks)`);
       
       // HYBRID MODE: Update lazy loading config directly
-      if (window.lazyLoadingConfig) {
-        window.lazyLoadingConfig.isChunkedExam = true;
-        window.lazyLoadingConfig.totalChunks = metadata.total_chunks;
-        window.lazyLoadingConfig.examMetadata = metadata;
-      }
+      lazyLoadingConfig.isChunkedExam = true;
+      lazyLoadingConfig.totalChunks = metadata.total_chunks;
+      lazyLoadingConfig.examMetadata = metadata;
       
       return true;
     } else {
