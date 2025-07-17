@@ -8525,6 +8525,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Apply theme
   applyTheme(settings.darkMode);
 
+  // CRITICAL: Discover exams BEFORE setting up event listeners
+  console.log('🔍 [INITIALIZATION] Discovering available exams...');
+  await discoverAvailableExams();
+  console.log('✅ [INITIALIZATION] Available exams discovered:', Object.keys(availableExams).length);
+
   // Setup event listeners with delay to allow modules to load
   setTimeout(() => {
     console.log('🎯 [HYBRID] Setting up event listeners after module loading delay');
@@ -8554,8 +8559,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   examsList.innerHTML =
     '<div class="loading-exams"><div class="spinner"></div><p>Discovering available exams...</p></div>';
 
-  // Discover and populate available exams
-  await discoverAvailableExams();
+  // Populate and display available exams (already discovered earlier)
   await populateExamDropdown();
   await displayAvailableExams();
 
