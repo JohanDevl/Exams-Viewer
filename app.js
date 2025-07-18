@@ -475,6 +475,8 @@ class ExamViewerApp {
 
   // Validate current answers
   validateAnswers() {
+    console.log('✅ [APP.JS] validateAnswers() called from APP.JS - this is correct!');
+    
     // HYBRID MODE: Use window.* for data loaded by modules
     const questions = window.currentQuestions || [];
     const questionIndex = window.currentQuestionIndex || 0;

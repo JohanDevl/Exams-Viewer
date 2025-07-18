@@ -4850,6 +4850,8 @@ function updateInstructions() {
 
 // Validate answers
 async function validateAnswers() {
+  console.error('❌ [SCRIPT.JS] validateAnswers() called from SCRIPT.JS - this should NOT happen!');
+  console.error('❌ [SCRIPT.JS] window.validateAnswers should point to app.js method');
   devLog("🔍 validateAnswers() called");
 
   // CRITICAL: Sync with UI module state first
@@ -8491,7 +8493,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   window.goToRandomQuestion = navigateToRandomQuestion;
   window.toggleSidebar = toggleSidebar;
   window.resetAnswers = resetAnswers;
-  window.validateAnswers = validateAnswers;
+  // NOTE: window.validateAnswers is set by app.js - don't override here
   console.log('🔄 [NAVIGATION] Navigation functions exposed to window object');
 
   // Add console message for users experiencing autoPip.js errors
