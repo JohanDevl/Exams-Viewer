@@ -30,9 +30,6 @@ let settings = {
 // Available exams mapping (will be populated dynamically)
 let availableExams = {};
 
-// HYBRID MODE: Initialize window.availableExams immediately for modules
-window.availableExams = availableExams;
-
 // Lazy loading system
 let lazyLoadingConfig = {
   chunkSize: 50, // Questions per chunk
@@ -70,9 +67,6 @@ let statistics = {
     examStats: {}, // Per-exam statistics
   },
 };
-
-// HYBRID MODE: Initialize window.statistics immediately for modules
-window.statistics = statistics;
 
 // Resume position system
 let resumePositions = {
@@ -465,28 +459,6 @@ function decompressData(compressedData) {
 }
 
 function saveStatistics() {
-  // HYBRID MODE: Always ensure statistics are synchronized before saving
-  window.statistics = statistics;
-  
-  // HYBRID MIGRATION: Use statistics module from app.js
-  if (window.app && window.app.getModule) {
-    const statsModule = window.app.getModule('statistics');
-    if (statsModule && statsModule.saveStatistics) {
-      try {
-        statsModule.saveStatistics();
-        return;
-      } catch (error) {
-        console.warn('Statistics module failed, falling back to legacy method:', error);
-      }
-    }
-  }
-  
-  // Fallback to legacy method
-  saveStatisticsLegacy();
-}
-
-// Legacy implementation (renamed)
-function saveStatisticsLegacy() {
   try {
     // Use simple JSON stringify to avoid compression corruption issues
     const dataToSave = JSON.stringify(statistics);
@@ -554,22 +526,8 @@ function clearCorruptedData() {
           
           // Additional validation for settings
           if (item.key === 'examViewerSettings') {
-            if (parsed && (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed))) {
+            if (parsed && typeof parsed !== 'object') {
               throw new Error('Invalid settings structure');
-            }
-            // Additional check: ensure it's a valid settings object with expected properties
-            if (parsed && typeof parsed === 'object') {
-              const requiredTypes = {
-                'darkMode': 'boolean',
-                'showDiscussionDefault': 'boolean',
-                'highlightDefault': 'boolean'
-              };
-              for (const [key, expectedType] of Object.entries(requiredTypes)) {
-                if (parsed.hasOwnProperty(key) && typeof parsed[key] !== expectedType) {
-                  console.warn(`Settings property ${key} has wrong type: expected ${expectedType}, got ${typeof parsed[key]}`);
-                  // Don't throw error, just log warning - let the app handle missing properties
-                }
-              }
             }
           }
           
@@ -590,14 +548,6 @@ function clearCorruptedData() {
           
         } catch (e) {
           console.warn(`${item.name} data validation failed:`, e.message);
-          
-          // For settings, don't remove immediately - they might be temporarily corrupted during validation
-          if (item.key === 'examViewerSettings') {
-            console.warn('Settings validation failed, but keeping them to avoid theme reset during validation');
-            // Try to recover by loading with defaults instead of removing
-            return;
-          }
-          
           localStorage.removeItem(item.key);
           
           // Only show error for statistics, settings/favorites can be recreated silently
@@ -615,50 +565,8 @@ function clearCorruptedData() {
 }
 
 function loadStatistics() {
-  console.log('📊 [STATISTICS] Starting loadStatistics()...');
-  console.log('📊 [STATISTICS] window.app exists:', !!window.app);
-  console.log('📊 [STATISTICS] window.app.getModule exists:', !!(window.app && window.app.getModule));
-  
-  // HYBRID MIGRATION: Use statistics module from app.js
-  if (window.app && window.app.getModule) {
-    const statsModule = window.app.getModule('statistics');
-    console.log('📊 [STATISTICS] Statistics module found:', !!statsModule);
-    console.log('📊 [STATISTICS] Module loadStatistics function:', !!(statsModule && statsModule.loadStatistics));
-    
-    if (statsModule && statsModule.loadStatistics) {
-      try {
-        statsModule.loadStatistics();
-        console.log('📊 [STATISTICS MODULE] Statistics loaded via modern module');
-        
-        // Ensure synchronization after module load
-        if (window.statistics) {
-          statistics = window.statistics;
-          console.log('📊 [STATISTICS] Synchronized from window.statistics - sessions:', statistics.sessions?.length || 0);
-        }
-        return;
-      } catch (error) {
-        console.warn('Statistics module failed, falling back to legacy method:', error);
-      }
-    } else {
-      console.log('📊 [STATISTICS] Statistics module not available, using legacy method');
-    }
-  } else {
-    console.log('📊 [STATISTICS] App modules not available, using legacy method');
-  }
-  
-  // Fallback to legacy method
-  console.log('📊 [STATISTICS] Using legacy loadStatisticsLegacy()');
-  loadStatisticsLegacy();
-}
-
-// Legacy implementation (renamed)
-function loadStatisticsLegacy() {
-  console.log('📊 [STATISTICS LEGACY] Starting loadStatisticsLegacy()...');
   try {
     const savedStats = localStorage.getItem("examViewerStatistics");
-    console.log('📊 [STATISTICS LEGACY] localStorage data exists:', !!savedStats);
-    console.log('📊 [STATISTICS LEGACY] localStorage data length:', savedStats ? savedStats.length : 0);
-    
     if (savedStats) {
       // Try regular JSON parse first, then fall back to decompression for legacy data
       let parsed;
@@ -869,13 +777,7 @@ function loadStatisticsLegacy() {
       // Save the migrated statistics
       saveStatistics();
 
-      console.log('📊 [STATISTICS LEGACY] Statistics loaded and migrated from localStorage');
-      console.log('📊 [STATISTICS LEGACY] Total sessions loaded:', statistics.sessions.length);
-      console.log('📊 [STATISTICS LEGACY] Current session:', !!statistics.currentSession);
       devLog("Statistics loaded and migrated from localStorage:", statistics);
-    } else {
-      console.log('📊 [STATISTICS LEGACY] No saved statistics found in localStorage');
-      console.log('📊 [STATISTICS LEGACY] Using default empty statistics');
     }
   } catch (error) {
     devError("Error loading statistics:", error);
@@ -1018,20 +920,13 @@ function recalculateTotalStats() {
 
 // Start a new exam session
 function startExamSession(examCode, examName) {
-  console.log('📊 [SESSION] startExamSession() called with:', examCode, examName);
-  
   // End current session if exists
   if (statistics.currentSession) {
-    console.log('📊 [SESSION] Ending existing session before starting new one');
     endCurrentSession();
   }
 
   statistics.currentSession = new ExamSession(examCode, examName);
-  console.log('📊 [SESSION] New session created:', statistics.currentSession);
   // Don't set totalQuestions here - it will be calculated dynamically based on actual attempts
-
-  // HYBRID MODE: Always ensure window.statistics is synchronized
-  window.statistics = statistics;
 
   devLog("Started new exam session:", statistics.currentSession);
   saveStatistics();
@@ -1039,13 +934,7 @@ function startExamSession(examCode, examName) {
 
 // End current session
 function endCurrentSession() {
-  console.log('📊 [SESSION] endCurrentSession() called');
-  console.log('📊 [SESSION] Current session exists:', !!statistics.currentSession);
-  
   if (statistics.currentSession) {
-    console.log('📊 [SESSION] Ending session for exam:', statistics.currentSession.ec);
-    console.log('📊 [SESSION] Session had', statistics.currentSession.q?.length || 0, 'question attempts');
-    
     statistics.currentSession.et = Date.now();
     statistics.currentSession.c = true;
 
@@ -1058,17 +947,11 @@ function endCurrentSession() {
     statistics.sessions.push(statistics.currentSession);
     statistics.currentSession = null;
 
-    // HYBRID MODE: Always ensure window.statistics is synchronized
-    window.statistics = statistics;
-
     // Recalculate total stats
     recalculateTotalStats();
     saveStatistics();
 
-    console.log('📊 [SESSION] Session ended and saved. Total sessions now:', statistics.sessions.length);
     devLog("Ended exam session");
-  } else {
-    console.log('📊 [SESSION] No active session to end');
   }
 }
 
@@ -1226,10 +1109,6 @@ function resetAllStatistics() {
     };
 
     localStorage.removeItem("examViewerStatistics");
-    
-    // HYBRID MODE: Always ensure statistics are synchronized after reset
-    window.statistics = statistics;
-    
     showSuccess("Statistics reset successfully");
 
     // Refresh statistics display if open
@@ -2778,8 +2657,6 @@ async function discoverAvailableExams() {
 
           if (Object.keys(discoveredExams).length > 0) {
             availableExams = discoveredExams;
-            // HYBRID MODE: Sync with window
-            window.availableExams = availableExams;
             devLog(
               "Successfully loaded exams from manifest:",
               Object.keys(availableExams)
@@ -2822,8 +2699,6 @@ async function discoverAvailableExams() {
             Object.keys(discoveredExams)
           );
           availableExams = discoveredExams;
-          // HYBRID MODE: Sync with window
-          window.availableExams = availableExams;
           return availableExams;
         }
       }
@@ -2905,8 +2780,6 @@ async function discoverAvailableExams() {
     await Promise.all(examCheckPromises);
 
     availableExams = discoveredExams;
-    // HYBRID MODE: Sync with window
-    window.availableExams = availableExams;
     devLog("Final discovered exams:", Object.keys(availableExams));
 
     return availableExams;
@@ -2914,8 +2787,6 @@ async function discoverAvailableExams() {
     devError("Error discovering exams:", error);
     // Fallback: return empty object if discovery fails
     availableExams = {};
-    // HYBRID MODE: Sync with window
-    window.availableExams = availableExams;
     return availableExams;
   }
 }
@@ -2924,26 +2795,6 @@ async function discoverAvailableExams() {
 
 // Load settings from localStorage
 function loadSettings() {
-  // HYBRID MIGRATION: Use settings module from app.js
-  if (window.app && window.app.getModule) {
-    const settingsModule = window.app.getModule('settings');
-    if (settingsModule && settingsModule.loadSettings) {
-      try {
-        settingsModule.loadSettings();
-        console.log('⚙️ [SETTINGS MODULE] Settings loaded via modern module');
-        return;
-      } catch (error) {
-        console.warn('Settings module failed, falling back to legacy method:', error);
-      }
-    }
-  }
-  
-  // Fallback to legacy method
-  loadSettingsLegacy();
-}
-
-// Legacy implementation (renamed)
-function loadSettingsLegacy() {
   const savedSettings = localStorage.getItem("examViewerSettings");
   if (savedSettings) {
     settings = { ...settings, ...JSON.parse(savedSettings) };
@@ -2992,58 +2843,33 @@ function loadSettingsLegacy() {
 
 // Save settings to localStorage
 function saveSettings() {
-  console.log('🔍 [DEBUG] saveSettings() called from script.js');
-  
-  // HYBRID MIGRATION: Use settings module from app.js
-  if (window.app && window.app.getModule) {
-    const settingsModule = window.app.getModule('settings');
-    console.log('🔍 [DEBUG] Settings module found:', !!settingsModule);
-    
-    if (settingsModule && settingsModule.saveSettings) {
-      try {
-        console.log('✅ [HYBRID] Using modern settings module');
-        settingsModule.saveSettings();
-        console.log('⚙️ [SETTINGS MODULE] Settings saved via modern module');
-        return;
-      } catch (error) {
-        console.warn('Settings module failed, falling back to legacy method:', error);
-      }
-    } else {
-      console.warn('🔍 [DEBUG] Settings module or saveSettings function not available');
-    }
-  } else {
-    console.warn('🔍 [DEBUG] window.app or getModule not available');
-  }
-  
-  // Fallback to legacy method
-  console.log('⚠️ [HYBRID] Falling back to legacy settings');
-  saveSettingsLegacy();
-}
-
-// Legacy implementation (renamed)
-function saveSettingsLegacy() {
-  const showDiscussionElement = document.getElementById("showDiscussionDefault");
-  const highlightDefaultElement = document.getElementById("highlightDefault");
-  const darkModeElement = document.getElementById("darkModeToggle");
-  const showQuestionToolbarElement = document.getElementById("showQuestionToolbar");
-  const showAdvancedSearchElement = document.getElementById("showAdvancedSearch");
-  const enableLazyLoadingElement = document.getElementById("enableLazyLoading");
-  const showMainProgressBarElement = document.getElementById("showMainProgressBar");
-  const showTooltipsElement = document.getElementById("showTooltips");
-  const enableResumePositionElement = document.getElementById("enableResumePosition");
-  const autoSavePositionElement = document.getElementById("autoSavePosition");
-
-  // Only update settings if elements exist, otherwise keep current values
-  if (showDiscussionElement) settings.showDiscussionDefault = showDiscussionElement.checked;
-  if (highlightDefaultElement) settings.highlightDefault = highlightDefaultElement.checked;
-  if (darkModeElement) settings.darkMode = darkModeElement.checked;
-  if (showQuestionToolbarElement) settings.showQuestionToolbar = showQuestionToolbarElement.checked;
-  if (showAdvancedSearchElement) settings.showAdvancedSearch = showAdvancedSearchElement.checked;
-  if (enableLazyLoadingElement) settings.enableLazyLoading = enableLazyLoadingElement.checked;
-  if (showMainProgressBarElement) settings.showMainProgressBar = showMainProgressBarElement.checked;
-  if (showTooltipsElement) settings.showTooltips = showTooltipsElement.checked;
-  if (enableResumePositionElement) settings.enableResumePosition = enableResumePositionElement.checked;
-  if (autoSavePositionElement) settings.autoSavePosition = autoSavePositionElement.checked;
+  settings.showDiscussionDefault = document.getElementById(
+    "showDiscussionDefault"
+  ).checked;
+  settings.highlightDefault =
+    document.getElementById("highlightDefault").checked;
+  settings.darkMode = document.getElementById("darkModeToggle").checked;
+  settings.showQuestionToolbar = document.getElementById(
+    "showQuestionToolbar"
+  ).checked;
+  settings.showAdvancedSearch = document.getElementById(
+    "showAdvancedSearch"
+  ).checked;
+  settings.enableLazyLoading = document.getElementById(
+    "enableLazyLoading"
+  ).checked;
+  settings.showMainProgressBar = document.getElementById(
+    "showMainProgressBar"
+  ).checked;
+  settings.showTooltips = document.getElementById(
+    "showTooltips"
+  ).checked;
+  settings.enableResumePosition = document.getElementById(
+    "enableResumePosition"
+  ).checked;
+  settings.autoSavePosition = document.getElementById(
+    "autoSavePosition"
+  ).checked;
   localStorage.setItem("examViewerSettings", JSON.stringify(settings));
   
   // Handle highlight default setting change
@@ -3112,30 +2938,6 @@ function saveSettingsLegacy() {
 
 // Apply dark/light theme
 function applyTheme(isDark) {
-  console.log('🎨 [THEME DEBUG] applyTheme called with isDark:', isDark);
-  console.trace('🎨 [THEME DEBUG] Call stack:');
-  
-  // HYBRID MIGRATION: Use settings module from app.js
-  if (window.app && window.app.getModule) {
-    const settingsModule = window.app.getModule('settings');
-    if (settingsModule && settingsModule.applyTheme) {
-      try {
-        console.log('🎨 [THEME DEBUG] Using settings module applyTheme');
-        settingsModule.applyTheme(isDark);
-        return;
-      } catch (error) {
-        console.warn('Settings module applyTheme failed, falling back to legacy method:', error);
-      }
-    }
-  }
-  
-  // Fallback to legacy method
-  console.log('🎨 [THEME DEBUG] Using legacy applyTheme');
-  applyThemeLegacy(isDark);
-}
-
-// Legacy implementation (renamed)
-function applyThemeLegacy(isDark) {
   const body = document.body;
   const darkModeBtn = document.getElementById("darkModeBtn");
   const icon = darkModeBtn?.querySelector("i");
@@ -3155,50 +2957,8 @@ function applyThemeLegacy(isDark) {
   }
 }
 
-// HYBRID MIGRATION: Use data module from app.js
+// Populate exam dropdown with available exams
 async function populateExamDropdown() {
-  // Use modern data module if available
-  if (window.app && window.app.getModule) {
-    const dataModule = window.app.getModule('data');
-    if (dataModule && dataModule.loadAvailableExams) {
-      try {
-        const exams = await dataModule.loadAvailableExams();
-        populateDropdownWithExams(exams);
-        return;
-      } catch (error) {
-        console.warn('Data module failed, falling back to legacy method:', error);
-      }
-    }
-  }
-  
-  // Fallback to legacy method
-  populateExamDropdownLegacy();
-}
-
-// Helper function to populate dropdown with modern data structure
-function populateDropdownWithExams(exams) {
-  const examSelect = document.getElementById("examCode");
-  if (!examSelect) return;
-
-  // Clear existing options
-  examSelect.innerHTML = '<option value="">Select an exam...</option>';
-
-  // Sort exams alphabetically (critical business rule)
-  const sortedExamCodes = Object.keys(exams).sort((a, b) => a.localeCompare(b));
-
-  sortedExamCodes.forEach(examCode => {
-    const exam = exams[examCode];
-    const option = document.createElement('option');
-    option.value = examCode;
-    option.textContent = `${examCode} - ${exam.name || examCode}`;
-    examSelect.appendChild(option);
-  });
-
-  console.log(`📋 [DATA MODULE] Populated dropdown with ${sortedExamCodes.length} exams`);
-}
-
-// Legacy implementation (renamed)
-async function populateExamDropdownLegacy() {
   const examSelect = document.getElementById("examCode");
 
   // Clear existing options except the first one
@@ -3249,14 +3009,7 @@ function setupEventListeners() {
   document.getElementById("examCode").addEventListener("change", function (e) {
     const examCode = this.value.trim().toUpperCase();
     if (examCode) {
-      console.log('🔄 [EXAM LOADING] Using app.js loadExam instead of script.js');
-      if (window.app && window.app.loadExam) {
-        // Use app.js method which properly manages sessions
-        window.app.loadExam(examCode);
-      } else {
-        console.warn('🔄 [EXAM LOADING] App not available, falling back to script.js loadExam');
-        loadExam(examCode);
-      }
+      loadExam(examCode);
     }
   });
 
@@ -3327,7 +3080,7 @@ function setupEventListeners() {
   // Answer controls
   document
     .getElementById("validateBtn")
-    .addEventListener("click", () => validateAnswers());
+    .addEventListener("click", validateAnswers);
   document.getElementById("resetBtn").addEventListener("click", resetAnswers);
   document
     .getElementById("highlightBtn")
@@ -3439,13 +3192,7 @@ function setupEventListeners() {
     .getElementById("showQuestionToolbar")
     .addEventListener("change", () => {
       saveSettings();
-      // FORCE update UI after settings save
-      if (window.app && window.app.getModule) {
-        const settingsModule = window.app.getModule('settings');
-        if (settingsModule && settingsModule.updateToolbarVisibility) {
-          settingsModule.updateToolbarVisibility();
-        }
-      }
+      updateToolbarVisibility();
       displayCurrentQuestion();
     });
   
@@ -3453,13 +3200,7 @@ function setupEventListeners() {
     .getElementById("showAdvancedSearch")
     .addEventListener("change", () => {
       saveSettings();
-      // FORCE update UI after settings save
-      if (window.app && window.app.getModule) {
-        const settingsModule = window.app.getModule('settings');
-        if (settingsModule && settingsModule.updateAdvancedSearchVisibility) {
-          settingsModule.updateAdvancedSearchVisibility();
-        }
-      }
+      updateAdvancedSearchVisibility();
     });
 
   document
@@ -3473,13 +3214,6 @@ function setupEventListeners() {
     .getElementById("showMainProgressBar")
     .addEventListener("change", () => {
       saveSettings();
-      // FORCE update UI after settings save
-      if (window.app && window.app.getModule) {
-        const settingsModule = window.app.getModule('settings');
-        if (settingsModule && settingsModule.updateMainProgressBarVisibility) {
-          settingsModule.updateMainProgressBarVisibility();
-        }
-      }
       showSuccess("Progress indicator setting updated.");
     });
 
@@ -3867,8 +3601,6 @@ async function displayAvailableExams() {
 
 // Load exam data
 async function loadExam(examCode) {
-  console.log('🔍 [DEBUG] loadExam() called from SCRIPT.JS with examCode:', examCode);
-  
   if (!availableExams[examCode]) {
     showError(
       `Exam code "${examCode}" not found. Available exams: ${Object.keys(
@@ -3909,13 +3641,6 @@ async function loadExam(examCode) {
       // Assemble current questions from loaded chunks
       allQuestions = assembleCurrentQuestions();
       currentQuestions = [...allQuestions];
-      console.log('🔍 [DEBUG] Chunked branch - allQuestions:', allQuestions.length, 'currentQuestions:', currentQuestions.length);
-      
-      // CRITICAL: Update window variables for module synchronization
-      window.currentQuestions = currentQuestions;
-      window.currentExam = currentExam;
-      window.currentQuestionIndex = currentQuestionIndex;
-      console.log('🔍 [DEBUG] Updated window.currentQuestions:', window.currentQuestions.length);
     } else {
       // Standard loading for smaller exams
       const response = await fetch(`data/${examCode}/exam.json`);
@@ -3950,13 +3675,6 @@ async function loadExam(examCode) {
 
       // Initialize current questions
       currentQuestions = [...allQuestions];
-      console.log('🔍 [DEBUG] Standard branch - allQuestions:', allQuestions.length, 'currentQuestions:', currentQuestions.length);
-      
-      // CRITICAL: Update window variables for module synchronization
-      window.currentQuestions = currentQuestions;
-      window.currentExam = currentExam;
-      window.currentQuestionIndex = currentQuestionIndex;
-      console.log('🔍 [DEBUG] Updated window.currentQuestions:', window.currentQuestions.length);
     }
     
     // Reset search state
@@ -3977,9 +3695,6 @@ async function loadExam(examCode) {
 
     // Start exam session for statistics
     startExamSession(examCode, currentExam.exam_name);
-    
-    // HYBRID MODE: Always ensure statistics are synchronized between systems
-    window.statistics = statistics;
 
     // Initialize highlight state from settings
     isHighlightEnabled = settings.highlightDefault;
@@ -4048,25 +3763,6 @@ async function loadExam(examCode) {
 
 // Show/hide loading
 function showLoading(show) {
-  console.log('🔍 [DEBUG] showLoading() called from script.js');
-  
-  // HYBRID MIGRATION: Use UI module from app.js
-  if (window.app && window.app.getModule) {
-    const uiModule = window.app.getModule('ui');
-    
-    if (uiModule && uiModule.showLoading) {
-      try {
-        console.log('✅ [HYBRID] Using modern UI module for showLoading');
-        uiModule.showLoading(show);
-        return;
-      } catch (error) {
-        console.warn('UI module showLoading failed, falling back to legacy method:', error);
-      }
-    }
-  }
-  
-  // Fallback to legacy method
-  console.log('⚠️ [HYBRID] Falling back to legacy showLoading');
   document.getElementById("loadingSection").style.display = show
     ? "block"
     : "none";
@@ -4074,25 +3770,6 @@ function showLoading(show) {
 
 // Show error message
 function showError(message) {
-  console.log('🔍 [DEBUG] showError() called from script.js');
-  
-  // HYBRID MIGRATION: Use UI module from app.js
-  if (window.app && window.app.getModule) {
-    const uiModule = window.app.getModule('ui');
-    
-    if (uiModule && uiModule.showError) {
-      try {
-        console.log('✅ [HYBRID] Using modern UI module for showError');
-        uiModule.showError(message);
-        return;
-      } catch (error) {
-        console.warn('UI module showError failed, falling back to legacy method:', error);
-      }
-    }
-  }
-  
-  // Fallback to legacy method
-  console.log('⚠️ [HYBRID] Falling back to legacy showError');
   const errorEl = document.getElementById("errorMessage");
   errorEl.textContent = message;
   errorEl.style.display = "block";
@@ -4101,25 +3778,6 @@ function showError(message) {
 
 // Show success message
 function showSuccess(message) {
-  console.log('🔍 [DEBUG] showSuccess() called from script.js');
-  
-  // HYBRID MIGRATION: Use UI module from app.js
-  if (window.app && window.app.getModule) {
-    const uiModule = window.app.getModule('ui');
-    
-    if (uiModule && uiModule.showSuccess) {
-      try {
-        console.log('✅ [HYBRID] Using modern UI module for showSuccess');
-        uiModule.showSuccess(message);
-        return;
-      } catch (error) {
-        console.warn('UI module showSuccess failed, falling back to legacy method:', error);
-      }
-    }
-  }
-  
-  // Fallback to legacy method
-  console.log('⚠️ [HYBRID] Falling back to legacy showSuccess');
   const successEl = document.getElementById("successMessage");
   successEl.textContent = message;
   successEl.style.display = "block";
@@ -4503,36 +4161,6 @@ function testQuestionJumpField() {
 
 // Display current question
 function displayCurrentQuestion(fromToggleAction = false) {
-  console.log('🔍 [DEBUG] displayCurrentQuestion() called from script.js');
-  
-  // HYBRID MIGRATION: Use UI module from app.js
-  if (window.app && window.app.getModule) {
-    const uiModule = window.app.getModule('ui');
-    console.log('🔍 [DEBUG] UI module found:', !!uiModule);
-    
-    if (uiModule && uiModule.displayCurrentQuestion) {
-      try {
-        console.log('✅ [HYBRID] Using modern UI module');
-        uiModule.displayCurrentQuestion(fromToggleAction);
-        console.log('🎯 [UI MODULE] Question displayed via modern module');
-        return;
-      } catch (error) {
-        console.warn('UI module failed, falling back to legacy method:', error);
-      }
-    } else {
-      console.warn('🔍 [DEBUG] UI module or displayCurrentQuestion function not available');
-    }
-  } else {
-    console.warn('🔍 [DEBUG] window.app or getModule not available');
-  }
-  
-  // Fallback to legacy method
-  console.log('⚠️ [HYBRID] Falling back to legacy displayCurrentQuestion');
-  displayCurrentQuestionLegacy(fromToggleAction);
-}
-
-// Legacy implementation (renamed)
-function displayCurrentQuestionLegacy(fromToggleAction = false) {
   if (!currentQuestions.length) return;
 
   const question = currentQuestions[currentQuestionIndex];
@@ -4577,11 +4205,6 @@ function displayCurrentQuestionLegacy(fromToggleAction = false) {
   selectedAnswers.clear();
   isValidated = false;
   questionStartTime = new Date(); // Start timing the question
-  
-  // CRITICAL: Update window variables for module synchronization
-  window.selectedAnswers = selectedAnswers;
-  window.isValidated = isValidated;
-  window.questionStartTime = questionStartTime;
 
   // Reset highlight to default setting unless user has manually overridden it
   if (!isHighlightTemporaryOverride && !fromToggleAction) {
@@ -4766,10 +4389,6 @@ function toggleAnswerSelection(letter, element) {
     selectedAnswers.add(letter);
     element.classList.add("selected");
   }
-  
-  // CRITICAL: Update window state for module sync
-  window.selectedAnswers = selectedAnswers;
-  
   updateInstructions();
 }
 
@@ -4821,45 +4440,58 @@ function updateQuestionStatistics() {
   }
 }
 
-// Legacy wrapper for updateInstructions - actual implementation moved to UI module
+// Update instructions
 function updateInstructions() {
-  console.log('🔄 [LEGACY] updateInstructions() wrapper called - delegating via app coordination');
-  
-  // Use app coordination first
-  if (window.app && window.app.updateInstructions) {
-    window.app.updateInstructions();
-    return;
-  }
-  
-  // Fallback: direct module access
-  if (window.app && window.app.getModule) {
-    const uiModule = window.app.getModule('ui');
-    if (uiModule && uiModule.updateInstructions) {
-      uiModule.updateInstructions();
-      return;
+  const instructions = document.getElementById("answerInstructions");
+  const selectedCount = selectedAnswers.size;
+  const validateBtn = document.getElementById("validateBtn");
+
+  if (isHighlightEnabled) {
+    instructions.className = "answer-instructions warning";
+    instructions.innerHTML =
+      '<i class="fas fa-lightbulb"></i><span>Highlight mode is active - correct answers are shown. Disable highlight to validate your answers.</span>';
+    // Hide reset button when highlight is active
+    if (!isValidated) {
+      document.getElementById("resetBtn").style.display = "none";
+    }
+  } else if (selectedCount === 0) {
+    instructions.className = "answer-instructions";
+    instructions.innerHTML =
+      '<i class="fas fa-info-circle"></i><span>Click on the answers to select them</span>';
+    // Hide reset button when no answers are selected and not validated
+    if (!isValidated) {
+      document.getElementById("resetBtn").style.display = "none";
+    }
+  } else {
+    instructions.className = "answer-instructions success";
+    const selectedLetters = Array.from(selectedAnswers).sort();
+    instructions.innerHTML = `<i class="fas fa-check-circle"></i><span>Selected: ${selectedLetters.join(
+      ", "
+    )}</span>`;
+    // Only show reset button after validation, not just when answers are selected
+    if (!isValidated) {
+      document.getElementById("resetBtn").style.display = "none";
     }
   }
-  
-  // Last resort: call via window if UI module not available
-  if (window.uiModuleUpdateInstructions && typeof window.uiModuleUpdateInstructions === 'function') {
-    window.uiModuleUpdateInstructions();
+
+  // Disable validate button when highlight is active
+  if (isHighlightEnabled) {
+    validateBtn.disabled = true;
+    validateBtn.style.opacity = "0.5";
+    validateBtn.style.cursor = "not-allowed";
+    validateBtn.title = "Disable highlight mode to validate answers";
   } else {
-    console.warn('🔄 [LEGACY] UI module updateInstructions not available');
+    validateBtn.disabled = false;
+    validateBtn.style.opacity = "1";
+    validateBtn.style.cursor = "pointer";
+    validateBtn.title = "";
   }
 }
 
 // Validate answers
-async function validateAnswers() {
-  console.error('❌ [SCRIPT.JS] validateAnswers() called from SCRIPT.JS - this should NOT happen!');
-  console.error('❌ [SCRIPT.JS] window.validateAnswers should point to app.js method');
+function validateAnswers() {
   devLog("🔍 validateAnswers() called");
 
-  // CRITICAL: Sync with UI module state first
-  if (window.selectedAnswers) {
-    selectedAnswers = window.selectedAnswers;
-    devLog("🔍 DEBUG: Synced selectedAnswers from window:", Array.from(selectedAnswers));
-  }
-  
   // If highlight is enabled, track this as a preview action and disable highlight
   const wasHighlightEnabled = isHighlightEnabled;
   devLog("🔍 DEBUG: isHighlightEnabled at start:", isHighlightEnabled);
@@ -4941,63 +4573,26 @@ async function validateAnswers() {
 
   isValidated = true;
 
-  // Always update window state first for module sync
-  window.selectedAnswers = selectedAnswers;
-  window.isValidated = true;
-  
-  // Initialize modules if needed for hybrid mode - do this before displaying validation results
-  if (window.initModulesIfNeeded && !window.uiModule) {
-    console.log('🔍 [VALIDATE DEBUG] About to call initModulesIfNeeded - preserving current theme and state');
-    // Preserve current theme and answer state before module initialization
-    const currentTheme = document.body.getAttribute('data-theme');
-    const isDarkMode = currentTheme === 'dark';
-    const preservedSelectedAnswers = new Set(selectedAnswers);
-    const preservedValidationState = isValidated;
-    console.log('🔍 [VALIDATE DEBUG] Current theme before init:', currentTheme, 'isDarkMode:', isDarkMode);
-    console.log('🔍 [VALIDATE DEBUG] Preserved selectedAnswers:', Array.from(preservedSelectedAnswers));
-    
-    await window.initModulesIfNeeded();
-    
-    // Restore theme if it was changed during initialization
-    const newTheme = document.body.getAttribute('data-theme');
-    console.log('🔍 [VALIDATE DEBUG] Theme after init:', newTheme);
-    if ((currentTheme === 'dark' && newTheme !== 'dark') || (currentTheme !== 'dark' && newTheme === 'dark')) {
-      console.log('🔍 [VALIDATE DEBUG] Theme changed during init, restoring to:', isDarkMode);
-      if (window.app && window.app.getModule) {
-        const settingsModule = window.app.getModule('settings');
-        if (settingsModule && settingsModule.applyTheme) {
-          settingsModule.applyTheme(isDarkMode);
-        }
-      }
+  // Update answer elements
+  const answerElements = document.querySelectorAll(".answer-option");
+  answerElements.forEach((element) => {
+    const letter = element
+      .querySelector(".answer-letter")
+      .textContent.charAt(0);
+    const isSelected = selectedAnswers.has(letter);
+    const isCorrect = correctAnswers.has(letter);
+
+    element.classList.add("disabled");
+    element.classList.remove("selected", "correct-not-selected");
+
+    if (isSelected && isCorrect) {
+      element.classList.add("correct");
+    } else if (isSelected && !isCorrect) {
+      element.classList.add("incorrect");
+    } else if (!isSelected && isCorrect) {
+      element.classList.add("correct-not-selected");
     }
-    
-    // Restore answer state after module initialization
-    selectedAnswers = preservedSelectedAnswers;
-    isValidated = preservedValidationState;
-    window.selectedAnswers = preservedSelectedAnswers;
-    window.isValidated = preservedValidationState;
-    console.log('🔍 [VALIDATE DEBUG] Restored selectedAnswers:', Array.from(selectedAnswers));
-  }
-  
-  // Use UI module for validation if available
-  if (window.uiModule && window.uiModule.showValidationResults) {
-    const correctAnswersArray = Array.from(correctAnswers);
-    devLog("✅ Using UI module for validation results");
-    window.uiModule.showValidationResults(correctAnswersArray);
-  } else if (window.app && window.app.getModule) {
-    const uiModule = window.app.getModule('ui');
-    if (uiModule && uiModule.showValidationResults) {
-      const correctAnswersArray = Array.from(correctAnswers);
-      devLog("✅ Using app UI module for validation results");
-      uiModule.showValidationResults(correctAnswersArray);
-    } else {
-      devLog("⚠️ UI module not available, using legacy validation");
-      legacyValidationDisplay(correctAnswers);
-    }
-  } else {
-    devLog("⚠️ App module not available, using legacy validation");
-    legacyValidationDisplay(correctAnswers);
-  }
+  });
 
   // Calculate time spent on question
   const timeSpent = questionStartTime
@@ -5061,45 +4656,6 @@ async function validateAnswers() {
   updateProgressSidebar();
 }
 
-// Legacy validation display (fallback when UI module not available)
-function legacyValidationDisplay(correctAnswers) {
-  devLog("⚠️ Using legacy validation display");
-  
-  const answerElements = document.querySelectorAll(".answer-option");
-  answerElements.forEach((element) => {
-    const letter = element.dataset.answer; // Use data-answer instead of .answer-letter
-    if (!letter) return; // Skip if no letter found
-    
-    const isSelected = selectedAnswers.has(letter);
-    const isCorrect = correctAnswers.has(letter);
-
-    element.classList.add("disabled");
-    element.classList.remove("selected", "correct-not-selected");
-
-    if (isSelected && isCorrect) {
-      element.classList.add("correct-answer");
-    } else if (isSelected && !isCorrect) {
-      element.classList.add("incorrect-answer");
-    } else if (!isSelected && isCorrect) {
-      element.classList.add("missed-answer");
-    }
-  });
-  
-  // Show result message
-  const correctSelected = new Set([...selectedAnswers].filter((x) => correctAnswers.has(x)));
-  const incorrectSelected = new Set([...selectedAnswers].filter((x) => !correctAnswers.has(x)));
-  
-  if (incorrectSelected.size === 0 && correctSelected.size === correctAnswers.size) {
-    showSuccess("Correct! Well done.");
-  } else {
-    const correctAnswersArray = Array.from(correctAnswers);
-    showError(`Incorrect. Correct answer${correctAnswersArray.length > 1 ? 's' : ''}: ${correctAnswersArray.join(', ')}`);
-  }
-  
-  // Update validate button
-  updateValidateButtonState();
-}
-
 // Show validation results
 function showValidationResults(correctAnswers) {
   const instructions = document.getElementById("answerInstructions");
@@ -5129,8 +4685,6 @@ function showValidationResults(correctAnswers) {
 
 // Reset answers
 function resetAnswers() {
-  console.log('🔄 [RESET DEBUG] resetAnswers() called');
-  console.trace('🔄 [RESET DEBUG] Call stack:');
   selectedAnswers.clear();
 
   // Track reset count for the current question
@@ -5185,15 +4739,6 @@ function resetAnswers() {
 
   isValidated = false;
 
-  // CRITICAL: Update global state for module synchronization
-  window.selectedAnswers = selectedAnswers;
-  window.isValidated = isValidated;
-  
-  // Update UI module state if available
-  if (window.uiModule && window.uiModule.updateIsValidated) {
-    window.uiModule.updateIsValidated(false);
-  }
-
   const answerElements = document.querySelectorAll(".answer-option");
   answerElements.forEach((element) => {
     element.className = "answer-option";
@@ -5206,13 +4751,6 @@ function resetAnswers() {
   updateQuestionStatistics();
 
   updateInstructions();
-  
-  // Update validate button state through UI module if available
-  if (window.uiModule && window.uiModule.updateValidateButton) {
-    window.uiModule.updateValidateButton();
-  }
-  
-  console.log('🔄 [RESET] Reset complete - selectedAnswers:', Array.from(selectedAnswers), 'isValidated:', isValidated);
 }
 
 // Toggle highlight
@@ -5273,25 +4811,6 @@ function toggleHighlight() {
 
 // Update highlight button appearance
 function updateHighlightButton() {
-  console.log('🔍 [DEBUG] updateHighlightButton() called from script.js');
-  
-  // HYBRID MIGRATION: Use UI module from app.js
-  if (window.app && window.app.getModule) {
-    const uiModule = window.app.getModule('ui');
-    
-    if (uiModule && uiModule.updateHighlightButton) {
-      try {
-        console.log('✅ [HYBRID] Using modern UI module for updateHighlightButton');
-        uiModule.updateHighlightButton();
-        return;
-      } catch (error) {
-        console.warn('UI module updateHighlightButton failed, falling back to legacy method:', error);
-      }
-    }
-  }
-  
-  // Fallback to legacy method
-  console.log('⚠️ [HYBRID] Falling back to legacy updateHighlightButton');
   const highlightBtn = document.getElementById("highlightBtn");
 
   if (isHighlightEnabled) {
@@ -7017,53 +6536,230 @@ function isSidebarOpen() {
 }
 
 // Update progress sidebar with question list
-// Legacy wrapper for updateProgressSidebar - actual implementation moved to Navigation module
 function updateProgressSidebar() {
-  console.log('🔄 [LEGACY] updateProgressSidebar() wrapper called - delegating via app coordination');
+  const sidebar = document.getElementById("progressSidebar");
+  if (!sidebar || !currentQuestions.length) return;
   
-  // Use app coordination first
-  if (window.app && window.app.updateProgressSidebar) {
-    window.app.updateProgressSidebar();
+  const questionList = sidebar.querySelector(".question-list");
+  if (!questionList) return;
+  
+  // Generate question items with enhanced status indicators
+  const items = currentQuestions.map((question, index) => {
+    const isCurrentQuestion = index === currentQuestionIndex;
+    const isPlaceholder = question.isPlaceholder;
+    
+    let statusClass = "";
+    let statusIcon = "";
+    let questionPreview = "";
+    let statusBadges = "";
+    
+    if (isPlaceholder) {
+      statusClass = "loading";
+      statusIcon = '<i class="fas fa-spinner fa-spin"></i>';
+      questionPreview = `Chunk ${question.chunkId + 1} - Loading...`;
+    } else {
+      const questionStatus = getQuestionStatus(question.question_number);
+      questionPreview = truncateText(question.question || "", 60);
+      
+      // Determine main status class and icon based on current question and status
+      if (isCurrentQuestion) {
+        statusClass = "current";
+        statusIcon = '<i class="fas fa-arrow-right"></i>';
+      } else {
+        statusClass = questionStatus.primaryStatus;
+        
+        // Set icon based on primary status
+        switch (questionStatus.primaryStatus) {
+          case 'correct':
+            statusIcon = '<i class="fas fa-check-circle"></i>';
+            break;
+          case 'incorrect':
+            statusIcon = '<i class="fas fa-times-circle"></i>';
+            break;
+          case 'preview':
+            statusIcon = '<i class="fas fa-lightbulb"></i>';
+            break;
+          case 'viewed':
+            statusIcon = '<i class="fas fa-eye"></i>';
+            break;
+          case 'new':
+          default:
+            statusIcon = '<i class="far fa-circle"></i>';
+            break;
+        }
+      }
+      
+      // Generate status badges
+      const badges = [];
+      
+      // Primary status badge
+      let primaryBadgeText = "";
+      let primaryBadgeIcon = "";
+      let primaryBadgeClass = questionStatus.primaryStatus;
+      
+      switch (questionStatus.primaryStatus) {
+        case 'correct':
+          primaryBadgeText = "Correct";
+          primaryBadgeIcon = '<i class="fas fa-check"></i>';
+          break;
+        case 'incorrect':
+          primaryBadgeText = "Wrong";
+          primaryBadgeIcon = '<i class="fas fa-times"></i>';
+          break;
+        case 'preview':
+          primaryBadgeText = "Preview";
+          primaryBadgeIcon = '<i class="fas fa-lightbulb"></i>';
+          break;
+        case 'viewed':
+          primaryBadgeText = "Viewed";
+          primaryBadgeIcon = '<i class="fas fa-eye"></i>';
+          break;
+        case 'new':
+          primaryBadgeText = "New";
+          primaryBadgeIcon = '<i class="fas fa-circle"></i>';
+          break;
+      }
+      
+      badges.push(`
+        <span class="status-badge ${primaryBadgeClass}" aria-label="${primaryBadgeText} question">
+          ${primaryBadgeIcon}
+          ${primaryBadgeText}
+        </span>
+      `);
+      
+      // Secondary badges for additional properties
+      if (questionStatus.isFavorite) {
+        badges.push(`
+          <span class="status-badge favorite" aria-label="Favorited question">
+            <i class="fas fa-star"></i>
+          </span>
+        `);
+      }
+      
+      if (questionStatus.hasNotes) {
+        badges.push(`
+          <span class="status-badge with-notes" aria-label="Question has notes">
+            <i class="fas fa-sticky-note"></i>
+          </span>
+        `);
+      }
+      
+      if (questionStatus.isCategorized) {
+        badges.push(`
+          <span class="status-badge categorized" aria-label="Question is categorized">
+            <i class="fas fa-tag"></i>
+          </span>
+        `);
+      }
+      
+      statusBadges = `
+        <div class="question-status-indicators">
+          <div class="primary-status">
+            ${badges[0]}
+          </div>
+          <div class="secondary-badges">
+            ${badges.slice(1).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
+    return `
+      <div class="question-item question-item-enhanced ${statusClass}" data-index="${index}" onclick="navigateToQuestionAsync(${index})">
+        <div class="question-number">
+          ${statusIcon}
+          <span>Q${question.question_number || index + 1}</span>
+        </div>
+        <div class="question-preview">${questionPreview}</div>
+        ${statusBadges}
+      </div>
+    `;
+  }).join("");
+  
+  questionList.innerHTML = items;
+  
+  // Update progress bar
+  updateProgressBar();
+  
+  // Update main progress bar
+  updateMainProgressBar();
+  
+  // Scroll current question into view
+  setTimeout(() => {
+    const currentItem = questionList.querySelector(".question-item.current");
+    if (currentItem) {
+      currentItem.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, 100);
+}
+
+// Update progress bar
+function updateProgressBar() {
+  const progressBar = document.getElementById("overallProgress");
+  if (!progressBar || !currentQuestions.length) return;
+  
+  const answeredCount = getAnsweredQuestionsCount();
+  const percentage = (answeredCount / currentQuestions.length) * 100;
+  
+  progressBar.style.width = `${percentage}%`;
+  progressBar.setAttribute("aria-valuenow", percentage.toFixed(1));
+  
+  // Update progress text
+  const progressText = document.getElementById("progressText");
+  if (progressText) {
+    progressText.textContent = `${answeredCount}/${currentQuestions.length} (${percentage.toFixed(1)}%)`;
+  }
+}
+
+// Update main progress indicator in header
+function updateMainProgressBar() {
+  const mainProgressSection = document.getElementById("mainProgressSection");
+  if (!mainProgressSection || !currentQuestions.length) return;
+
+  // Check if the main progress bar is enabled in settings
+  if (!settings.showMainProgressBar) {
+    mainProgressSection.style.display = "none";
     return;
   }
-  
-  // Fallback: direct module access
-  if (window.app && window.app.getModule) {
-    const navigationModule = window.app.getModule('navigation');
-    if (navigationModule && navigationModule.updateProgressSidebar) {
-      navigationModule.updateProgressSidebar();
-      return;
-    }
-  }
-  
-  // Last resort: call via window if Navigation module not available
-  if (window.navigationModuleUpdateProgressSidebar && typeof window.navigationModuleUpdateProgressSidebar === 'function') {
-    window.navigationModuleUpdateProgressSidebar();
-  } else {
-    console.warn('🔄 [LEGACY] Navigation module updateProgressSidebar not available');
-  }
-}
 
-// Legacy wrapper for updateProgressBar - implementation moved to Navigation module
-function updateProgressBar() {
-  console.log('🔄 [LEGACY] updateProgressBar() wrapper - delegating to Navigation module');
-  if (window.app && window.app.getModule) {
-    const navigationModule = window.app.getModule('navigation');
-    if (navigationModule && navigationModule.updateProgressBar) {
-      navigationModule.updateProgressBar();
-    }
+  // Show the progress section if it's hidden and enabled
+  if (mainProgressSection.style.display === "none") {
+    mainProgressSection.style.display = "block";
+    // Reset milestone states for new exam display
+    resetMilestoneStates();
   }
-}
 
-// Legacy wrapper for updateMainProgressBar - implementation moved to Navigation module
-function updateMainProgressBar() {
-  console.log('🔄 [LEGACY] updateMainProgressBar() wrapper - delegating to Navigation module');
-  if (window.app && window.app.getModule) {
-    const navigationModule = window.app.getModule('navigation');
-    if (navigationModule && navigationModule.updateMainProgressBar) {
-      navigationModule.updateMainProgressBar();
-    }
-  }
+  const progressFill = document.getElementById("mainProgressFill");
+  const progressText = document.getElementById("mainProgressText");
+  const progressPercentage = document.getElementById("mainProgressPercentage");
+  const answeredCountMain = document.getElementById("answeredCountMain");
+  const favoritesCountMain = document.getElementById("favoritesCountMain");
+  const remainingCountMain = document.getElementById("remainingCountMain");
+
+  if (!progressFill || !progressText || !progressPercentage) return;
+
+  // Calculate progress metrics
+  const totalQuestions = currentQuestions.length;
+  const answeredCount = getAnsweredQuestionsCount();
+  const favoritesCount = getFavoritesCount();
+  const remainingCount = totalQuestions - answeredCount;
+  const answerPercentage = (answeredCount / totalQuestions) * 100;
+
+  // Update progress bar with smooth animation
+  progressFill.style.width = `${answerPercentage}%`;
+  progressFill.setAttribute("aria-valuenow", answerPercentage.toFixed(1));
+
+  // Update text displays
+  progressText.textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
+  progressPercentage.textContent = `${answerPercentage.toFixed(1)}%`;
+
+  // Update statistics with smooth number transitions
+  if (answeredCountMain) animateNumberChange(answeredCountMain, answeredCount);
+  if (favoritesCountMain) animateNumberChange(favoritesCountMain, favoritesCount);
+  if (remainingCountMain) animateNumberChange(remainingCountMain, remainingCount);
+
+  // Add visual feedback for progress milestones
+  addProgressMilestoneEffects(answerPercentage);
 }
 
 // Get count of favorite questions in current exam
@@ -8119,16 +7815,47 @@ function isQuestionCategorized(questionNumber) {
 let questionStatusCache = new Map();
 
 // Get comprehensive question status (with caching for performance)
-// Legacy wrapper for getQuestionStatus - implementation moved to Navigation module
 function getQuestionStatus(questionNumber) {
-  if (window.app && window.app.getModule) {
-    const navigationModule = window.app.getModule('navigation');
-    if (navigationModule && navigationModule.getQuestionStatus) {
-      return navigationModule.getQuestionStatus(questionNumber);
-    }
+  const cacheKey = `${currentExam?.exam_name || 'unknown'}_${questionNumber}`;
+  
+  // Check cache first (cache is invalidated when statistics change)
+  if (questionStatusCache.has(cacheKey)) {
+    return questionStatusCache.get(cacheKey);
   }
-  // Fallback: return basic status
-  return { primaryStatus: 'new', isNew: true, isViewed: false, isAnswered: false };
+  
+  const status = {
+    isNew: !isQuestionVisited(questionNumber) && !isQuestionAnswered(questionNumber),
+    isViewed: isQuestionVisited(questionNumber) && !isQuestionAnswered(questionNumber),
+    isAnsweredCorrectly: isQuestionAnsweredCorrectly(questionNumber),
+    isAnsweredIncorrectly: isQuestionAnsweredIncorrectly(questionNumber),
+    isAnsweredInPreview: isQuestionAnsweredInPreview(questionNumber),
+    isFavorite: isQuestionFavorite(questionNumber),
+    hasNotes: hasQuestionNotes(questionNumber),
+    isCategorized: isQuestionCategorized(questionNumber),
+    isAnswered: isQuestionAnswered(questionNumber)
+  };
+  
+  // Determine primary status
+  if (status.isAnsweredCorrectly) {
+    status.primaryStatus = 'correct';
+  } else if (status.isAnsweredIncorrectly) {
+    status.primaryStatus = 'incorrect';
+  } else if (status.isAnsweredInPreview) {
+    status.primaryStatus = 'preview';
+  } else if (status.isViewed) {
+    status.primaryStatus = 'viewed';
+  } else {
+    status.primaryStatus = 'new';
+  }
+  
+  // Cache the result (limit cache size to prevent memory leaks)
+  if (questionStatusCache.size > 200) {
+    const firstKey = questionStatusCache.keys().next().value;
+    questionStatusCache.delete(firstKey);
+  }
+  questionStatusCache.set(cacheKey, status);
+  
+  return status;
 }
 
 // Clear question status cache when statistics or favorites change
@@ -8154,15 +7881,7 @@ function trackQuestionVisit(questionNumber) {
 }
 
 // Truncate text for preview
-// Legacy wrapper for truncateText - implementation moved to Navigation module
 function truncateText(text, maxLength) {
-  if (window.app && window.app.getModule) {
-    const navigationModule = window.app.getModule('navigation');
-    if (navigationModule && navigationModule.truncateText) {
-      return navigationModule.truncateText(text, maxLength);
-    }
-  }
-  // Fallback: basic implementation
   if (!text) return "";
   const cleanText = text.replace(/<[^>]*>/g, "").trim();
   return cleanText.length > maxLength ? cleanText.substring(0, maxLength) + "..." : cleanText;
@@ -8357,14 +8076,8 @@ async function navigateToQuestionIndex(newIndex, addToHistory = true) {
     // Set current index immediately for responsive UI
     currentQuestionIndex = newIndex;
     
-    // CRITICAL: Update global state for module synchronization
-    window.currentQuestionIndex = newIndex;
-    
     // Reset highlight override when navigating to a new question
     isHighlightTemporaryOverride = false;
-    
-    // Update global state for module synchronization
-    window.isHighlightTemporaryOverride = isHighlightTemporaryOverride;
     
     // Check if we need to load a chunk for this question
     if (lazyLoadingConfig.isChunkedExam && currentQuestions[newIndex]?.isPlaceholder) {
@@ -8420,81 +8133,9 @@ async function navigateToQuestionAsync(index) {
   await navigateToQuestionIndex(index);
 }
 
-// Setup automatic session saving for when user leaves page or changes exam
-function setupAutomaticSessionSaving() {
-  console.log('📊 [SESSION] Setting up automatic session saving...');
-  
-  // Save session when page unloads
-  window.addEventListener('beforeunload', (event) => {
-    console.log('📊 [SESSION] Page unloading - saving current session');
-    if (statistics.currentSession && statistics.currentSession.q && statistics.currentSession.q.length > 0) {
-      endCurrentSession();
-    }
-  });
-  
-  // Save session when page becomes hidden (mobile/tab switching)
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden && statistics.currentSession && statistics.currentSession.q && statistics.currentSession.q.length > 0) {
-      console.log('📊 [SESSION] Page hidden - saving current session');
-      // Don't end session, just save current state
-      saveStatistics();
-    }
-  });
-  
-  // Periodic auto-save every 30 seconds if there's activity
-  setInterval(() => {
-    if (statistics.currentSession && statistics.currentSession.q && statistics.currentSession.q.length > 0) {
-      console.log('📊 [SESSION] Periodic auto-save of current session');
-      saveStatistics();
-    }
-  }, 30000); // 30 seconds
-  
-  console.log('✅ [SESSION] Automatic session saving setup complete');
-}
-
-// Wait for app modules to be ready for proper initialization order
-async function waitForAppModules() {
-  // Wait for app to be available
-  let attempts = 0;
-  const maxAttempts = 50; // 5 seconds max wait
-  
-  while (!window.app && attempts < maxAttempts) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    attempts++;
-  }
-  
-  if (!window.app) {
-    console.warn('App modules not available, proceeding with legacy initialization');
-    return;
-  }
-  
-  // Wait for statistics module to be loaded
-  attempts = 0;
-  while (!window.app.getModule('statistics') && attempts < maxAttempts) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    attempts++;
-  }
-  
-  if (window.app.getModule('statistics')) {
-    console.log('✅ [HYBRID] Statistics module ready for initialization');
-  } else {
-    console.warn('Statistics module not available, using legacy fallback');
-  }
-}
-
 // Initialize app when DOM is loaded
 document.addEventListener("DOMContentLoaded", async function () {
   devLog("DOM loaded, initializing application...");
-
-  // CRITICAL: Expose navigation functions to window object for hybrid migration
-  window.nextQuestion = async () => await navigateQuestion(1);
-  window.previousQuestion = async () => await navigateQuestion(-1);
-  window.navigateToQuestion = navigateToQuestionIndex;
-  window.goToRandomQuestion = navigateToRandomQuestion;
-  window.toggleSidebar = toggleSidebar;
-  window.resetAnswers = resetAnswers;
-  // NOTE: window.validateAnswers is set by app.js - don't override here
-  console.log('🔄 [NAVIGATION] Navigation functions exposed to window object');
 
   // Add console message for users experiencing autoPip.js errors
   if (isDevelopmentMode()) {
@@ -8506,20 +8147,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Check for and clear corrupted localStorage data
   clearCorruptedData();
 
-  // HYBRID MODE: Wait for app modules to be ready before loading data
-  await waitForAppModules();
-
   // Load saved data with recovery
   loadSettings();
   loadStatistics();
   loadFavorites();
   loadResumePositions();
-  
-  // HYBRID MODE: Ensure window.statistics is synchronized after loading
-  window.statistics = statistics;
-  
-  // Setup automatic session saving
-  setupAutomaticSessionSaving();
   
   // Clean up old resume positions
   cleanupResumePositions();
@@ -8527,17 +8159,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Apply theme
   applyTheme(settings.darkMode);
 
-  // CRITICAL: Discover exams BEFORE setting up event listeners
-  console.log('🔍 [INITIALIZATION] Discovering available exams...');
-  await discoverAvailableExams();
-  console.log('✅ [INITIALIZATION] Available exams discovered:', Object.keys(availableExams).length);
-
-  // Setup event listeners with delay to allow modules to load
-  setTimeout(() => {
-    console.log('🎯 [HYBRID] Setting up event listeners after module loading delay');
-    setupEventListeners();
-    setupFavoritesEventListeners();
-  }, 1000); // 1 second delay to allow modules to load
+  // Setup event listeners (only once)
+  setupEventListeners();
+  setupFavoritesEventListeners();
 
   // Initialize category dropdown
   updateCategoryDropdown();
@@ -8561,7 +8185,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   examsList.innerHTML =
     '<div class="loading-exams"><div class="spinner"></div><p>Discovering available exams...</p></div>';
 
-  // Populate and display available exams (already discovered earlier)
+  // Discover and populate available exams
+  await discoverAvailableExams();
   await populateExamDropdown();
   await displayAvailableExams();
 
