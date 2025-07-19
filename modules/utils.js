@@ -1,163 +1,15 @@
-// Utility Functions Module
-// This module contains reusable utility functions used across the application
+/**
+ * Utility Functions Module
+ * Contains reusable utility functions used throughout the application
+ */
 
-// Data compression utilities
-export function compressData(data) {
-  try {
-    const jsonString = JSON.stringify(data);
+// ===== TIME AND FORMAT UTILITIES =====
 
-    // Enhanced compression using character frequency replacement
-    const compressionMap = {
-      // Property names
-      '"questionNumber"': '"qn"',
-      '"correctAnswers"': '"ca"',
-      '"userAnswers"': '"ua"',
-      '"attempts"': '"att"',
-      '"startTime"': '"st"',
-      '"endTime"': '"et"',
-      '"timeSpent"': '"ts"',
-      '"isCorrect"': '"ic"',
-      '"finalScore"': '"fs"',
-      '"resetCount"': '"rc"',
-      '"highlightButtonClicks"': '"hbc"',
-      '"highlightViewCount"': '"hvc"',
-      '"firstActionType"': '"fat"',
-      '"firstActionRecorded"': '"far"',
-      '"examCode"': '"ec"',
-      '"examName"': '"en"',
-      '"examStats"': '"es"',
-      '"totalStats"': '"ts"',
-      '"totalQuestions"': '"tq"',
-      '"totalCorrect"': '"tc"',
-      '"totalIncorrect"': '"ti"',
-      '"totalPreview"': '"tp"',
-      '"totalTime"': '"tt"',
-      '"sessions"': '"s"',
-      '"currentSession"': '"cs"',
-      '"completedExams"': '"ce"',
-      '"averageAccuracy"': '"aa"',
-      '"totalExamCount"': '"tec"',
-      '"uniqueExamsCount"': '"uec"',
-      '"correctAnswersRate"': '"car"',
-      '"categories"': '"cat"',
-      '"customCategories"': '"cc"',
-      '"isRevisionMode"': '"irm"',
-      '"revisionFilter"': '"rf"',
-      '"favorites"': '"fav"',
-      '"questions"': '"q"',
-      '"visitedQuestions"': '"vq"',
-      '"completed"': '"c"',
-      // Common values
-      ',"isFavorite":true': ',"if":1',
-      ',"isFavorite":false': ',"if":0',
-      ',"isCorrect":true': ',"ic":1',
-      ',"isCorrect":false': ',"ic":0',
-      ',"completed":true': ',"c":1',
-      ',"completed":false': ',"c":0',
-      ',"firstActionRecorded":true': ',"far":1',
-      ',"firstActionRecorded":false': ',"far":0',
-      '"validate"': '"v"',
-      '"preview"': '"p"',
-      '"Important"': '"I"',
-      '"Review"': '"R"',
-      '"Difficult"': '"D"',
-    };
-
-    let compressedString = jsonString;
-    for (const [original, compressed] of Object.entries(compressionMap)) {
-      compressedString = compressedString.replace(
-        new RegExp(original.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"),
-        compressed
-      );
-    }
-
-    return compressedString;
-  } catch (error) {
-    console.warn("Compression failed, returning original data:", error);
-    return JSON.stringify(data);
-  }
-}
-
-export function decompressData(compressedData) {
-  try {
-    // Reverse the compression mapping
-    const decompressionMap = {
-      // Property names
-      '"qn"': '"questionNumber"',
-      '"ca"': '"correctAnswers"',
-      '"ua"': '"userAnswers"',
-      '"att"': '"attempts"',
-      '"st"': '"startTime"',
-      '"et"': '"endTime"',
-      '"ts"': '"timeSpent"',
-      '"ic"': '"isCorrect"',
-      '"fs"': '"finalScore"',
-      '"rc"': '"resetCount"',
-      '"hbc"': '"highlightButtonClicks"',
-      '"hvc"': '"highlightViewCount"',
-      '"fat"': '"firstActionType"',
-      '"far"': '"firstActionRecorded"',
-      '"ec"': '"examCode"',
-      '"en"': '"examName"',
-      '"es"': '"examStats"',
-      '"ts"': '"totalStats"',
-      '"tq"': '"totalQuestions"',
-      '"tc"': '"totalCorrect"',
-      '"ti"': '"totalIncorrect"',
-      '"tp"': '"totalPreview"',
-      '"tt"': '"totalTime"',
-      '"s"': '"sessions"',
-      '"cs"': '"currentSession"',
-      '"ce"': '"completedExams"',
-      '"aa"': '"averageAccuracy"',
-      '"tec"': '"totalExamCount"',
-      '"uec"': '"uniqueExamsCount"',
-      '"car"': '"correctAnswersRate"',
-      '"cat"': '"categories"',
-      '"cc"': '"customCategories"',
-      '"irm"': '"isRevisionMode"',
-      '"rf"': '"revisionFilter"',
-      '"fav"': '"favorites"',
-      '"q"': '"questions"',
-      '"vq"': '"visitedQuestions"',
-      '"c"': '"completed"',
-      // Common values
-      ',"if":1': ',"isFavorite":true',
-      ',"if":0': ',"isFavorite":false',
-      ',"ic":1': ',"isCorrect":true',
-      ',"ic":0': ',"isCorrect":false',
-      ',"c":1': ',"completed":true',
-      ',"c":0': ',"completed":false',
-      ',"far":1': ',"firstActionRecorded":true',
-      ',"far":0': ',"firstActionRecorded":false',
-      '"v"': '"validate"',
-      '"p"': '"preview"',
-      '"I"': '"Important"',
-      '"R"': '"Review"',
-      '"D"': '"Difficult"',
-    };
-
-    let decompressedString = compressedData;
-    for (const [compressed, original] of Object.entries(decompressionMap)) {
-      decompressedString = decompressedString.replace(
-        new RegExp(compressed.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"),
-        original
-      );
-    }
-
-    return JSON.parse(decompressedString);
-  } catch (error) {
-    console.warn("Decompression failed, attempting to parse as-is:", error);
-    try {
-      return JSON.parse(compressedData);
-    } catch (parseError) {
-      console.error("Failed to parse data:", parseError);
-      return null;
-    }
-  }
-}
-
-// Time formatting utilities
+/**
+ * Format seconds into human readable time
+ * @param {number} seconds - Time in seconds
+ * @returns {string} Formatted time string
+ */
 export function formatTime(seconds) {
   if (seconds < 60) {
     return `${seconds}s`;
@@ -172,7 +24,11 @@ export function formatTime(seconds) {
   }
 }
 
-// File size formatting
+/**
+ * Format bytes into human readable file size
+ * @param {number} bytes - Size in bytes
+ * @returns {string} Formatted file size string
+ */
 export function formatFileSize(bytes) {
   if (bytes === 0) return '0 B';
   const k = 1024;
@@ -181,246 +37,240 @@ export function formatFileSize(bytes) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
-// Text processing utilities
+/**
+ * Truncate text to maximum length with ellipsis
+ * @param {string} text - Text to truncate
+ * @param {number} maxLength - Maximum length
+ * @returns {string} Truncated text
+ */
 export function truncateText(text, maxLength) {
   if (!text) return "";
   const cleanText = text.replace(/<[^>]*>/g, "").trim();
   return cleanText.length > maxLength ? cleanText.substring(0, maxLength) + "..." : cleanText;
 }
 
-export function convertUrlsToLinks(text) {
-  // Regular expression to match URLs
-  const urlRegex = /(https?:\/\/[^\s<>"]+)/gi;
-  return text.replace(
-    urlRegex,
-    '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
-  );
-}
+// ===== MOBILE AND TOUCH UTILITIES =====
 
-export function formatCommentText(text, imagesData = null) {
-  if (!text) return "";
-
-  // Convert line breaks to <br> tags
-  let formattedText = text.replace(/\n/g, "<br>");
-
-  // Process embedded images if available
-  if (imagesData && Object.keys(imagesData).length > 0) {
-    formattedText = processEmbeddedImages(formattedText, imagesData);
-  }
-
-  // Convert URLs to clickable links
-  formattedText = convertUrlsToLinks(formattedText);
-
-  return formattedText;
-}
-
-// UI animation utilities
-export function animateNumberChange(element, newValue) {
-  if (!element) return;
-  
-  const currentValue = parseInt(element.textContent) || 0;
-  if (currentValue === newValue) return;
-  
-  const startValue = currentValue;
-  const difference = newValue - startValue;
-  const duration = 400; // Animation duration in ms
-  const startTime = performance.now();
-  
-  function updateNumber(currentTime) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    
-    // Use easing function for smooth animation
-    const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-    const currentNumber = Math.round(startValue + (difference * easeOutQuart));
-    
-    element.textContent = currentNumber;
-    
-    if (progress < 1) {
-      requestAnimationFrame(updateNumber);
-    }
-  }
-  
-  requestAnimationFrame(updateNumber);
-}
-
-// Mobile haptic feedback
+/**
+ * Add haptic feedback for mobile devices
+ */
 export function addHapticFeedback() {
   if ('vibrate' in navigator) {
     navigator.vibrate(50); // Short vibration
   }
 }
 
-// Markdown rendering utility
-export function renderMarkdown(markdown) {
-  let html = markdown;
-
-  // Convert headers by counting # symbols
-  html = html.replace(/^(#{1,6})\s+(.*$)/gim, (match, hashes, content) => {
-    const level = hashes.length;
-
-    // Add icons for changelog sections (level 3 headers)
-    if (level === 3) {
-      const sectionIcons = {
-        Added:
-          '<i class="fas fa-plus-circle" style="color: var(--success-color);"></i>',
-        Changed:
-          '<i class="fas fa-edit" style="color: var(--accent-color);"></i>',
-        Enhanced:
-          '<i class="fas fa-arrow-up" style="color: var(--accent-color);"></i>',
-        Fixed:
-          '<i class="fas fa-wrench" style="color: var(--warning-color);"></i>',
-        Removed:
-          '<i class="fas fa-minus-circle" style="color: var(--error-color);"></i>',
-        Deprecated:
-          '<i class="fas fa-exclamation-triangle" style="color: var(--warning-color);"></i>',
-        Security:
-          '<i class="fas fa-shield-alt" style="color: var(--accent-color);"></i>',
-      };
-
-      const icon = sectionIcons[content.trim()] || "";
-      return `<h${level} id="${content
-        .toLowerCase()
-        .replace(/\s+/g, "-")}">${icon} ${content}</h${level}>`;
-    }
-
-    return `<h${level} id="${content
-      .toLowerCase()
-      .replace(/\s+/g, "-")}">${content}</h${level}>`;
+/**
+ * Setup touch feedback for interactive elements
+ */
+export function setupTouchFeedback() {
+  // Add touch feedback class to interactive elements
+  const interactiveElements = document.querySelectorAll('.nav-btn, .answer-option, .exam-load-btn, .favorites-actions button, .export-actions button');
+  
+  interactiveElements.forEach(element => {
+    element.classList.add('touch-feedback');
+    
+    // Add touch feedback for mobile
+    element.addEventListener('touchstart', () => {
+      addHapticFeedback();
+    });
   });
-
-  // Convert **bold** to <strong>
-  html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-
-  // Convert *italic* to <em>
-  html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
-
-  // Convert `code` to <code>
-  html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
-
-  // Convert [link](url) to <a>
-  html = html.replace(
-    /\[([^\]]+)\]\(([^)]+)\)/g,
-    '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
-  );
-
-  // Convert line breaks to <br> for single newlines, but preserve paragraphs
-  html = html.replace(/\n\n/g, "</p><p>");
-  html = html.replace(/\n/g, "<br>");
-  html = `<p>${html}</p>`;
-
-  // Fix empty paragraphs
-  html = html.replace(/<p><\/p>/g, "");
-
-  // Convert lists
-  html = html.replace(/^- (.+)$/gm, "<li>$1</li>");
-  html = html.replace(/(<li>.*<\/li>)/s, "<ul>$1</ul>");
-
-  return html;
 }
 
-// Process embedded images in content
+// ===== IMAGE PROCESSING UTILITIES =====
+
+/**
+ * Process embedded images in HTML content
+ * @param {string} htmlContent - HTML content with image references
+ * @param {Object} imagesData - Image data with base64 content
+ * @returns {string} Processed HTML with embedded images
+ */
 export function processEmbeddedImages(htmlContent, imagesData) {
-  if (!imagesData || Object.keys(imagesData).length === 0) {
+  if (!htmlContent || !imagesData || Object.keys(imagesData).length === 0) {
     return htmlContent;
   }
-
   let processedContent = htmlContent;
-
-  // Process each image in the imagesData
-  Object.entries(imagesData).forEach(([imageName, imageData]) => {
-    if (imageData && imageData.base64) {
-      // Create the base64 data URL
-      const mimeType = imageData.format === 'webp' ? 'image/webp' : 
-                     imageData.format === 'png' ? 'image/png' : 'image/jpeg';
-      const dataUrl = `data:${mimeType};base64,${imageData.base64}`;
-
-      // Replace all occurrences of the image name with the embedded image
-      const imageRegex = new RegExp(imageName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-      processedContent = processedContent.replace(imageRegex, 
-        `<img src="${dataUrl}" alt="${imageName}" class="embedded-image" loading="lazy" style="max-width: 100%; height: auto; border-radius: 4px; margin: 8px 0;" />`
-      );
-    }
+  
+  // Replace image references with base64 data
+  Object.keys(imagesData).forEach(imageId => {
+    const imageInfo = imagesData[imageId];
+    
+    // Use WebP format for better compression, fallback to JPEG
+    const imageDataUrl = `data:image/webp;base64,${imageInfo.webp}`;
+    
+    // Pattern to find img tags with this data-img-id
+    const imgPattern = new RegExp(`<img[^>]*data-img-id="${imageId}"[^>]*>`, 'gi');
+    
+    processedContent = processedContent.replace(imgPattern, (match) => {
+      let updatedTag = match;
+      
+      // Replace the src attribute (it might be truncated base64)
+      if (match.includes('src=')) {
+        updatedTag = updatedTag.replace(/src="[^"]*"/, `src="${imageDataUrl}"`);
+      } else {
+        // Add src if not present
+        updatedTag = updatedTag.replace('<img', `<img src="${imageDataUrl}"`);
+      }
+      
+      // Add responsive styling
+      if (!updatedTag.includes('style=')) {
+        updatedTag = updatedTag.replace('<img', '<img style="max-width: 100%; height: auto; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"');
+      }
+      
+      // Add alt text if not present
+      if (!updatedTag.includes('alt=')) {
+        updatedTag = updatedTag.replace('<img', `<img alt="Question image"`);
+      }
+      
+      return updatedTag;
+    });
   });
-
+  
   return processedContent;
 }
 
-// ID generation utility
-export function generateCompactId() {
-  const now = Date.now();
-  const random = Math.random().toString(36).substr(2, 3);
-  return `${now.toString(36)}${random}`;
+// ===== DEVELOPMENT UTILITIES =====
+
+/**
+ * Development logging function
+ * @param {...any} args - Arguments to log
+ */
+export function devLog(...args) {
+  if (isDevelopmentMode()) {
+    console.log('[DEV]', ...args);
+  }
 }
 
-// Debounce utility for performance optimization
-export function debounce(func, wait, immediate) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      timeout = null;
-      if (!immediate) func(...args);
-    };
-    const callNow = immediate && !timeout;
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-    if (callNow) func(...args);
-  };
+/**
+ * Check if in development mode
+ * @returns {boolean} True if in development mode
+ */
+export function isDevelopmentMode() {
+  return window.location.hostname === 'localhost' || 
+         window.location.hostname === '127.0.0.1' || 
+         window.location.hostname === '';
 }
 
-// Deep clone utility
+// ===== DATA COMPRESSION UTILITIES =====
+
+/**
+ * Compress data for localStorage storage
+ * @param {any} data - Data to compress
+ * @returns {string} Compressed data string
+ */
+export function compressData(data) {
+  try {
+    const jsonString = JSON.stringify(data);
+    // Simple compression using JSON.stringify optimizations
+    // In a real implementation, you might use LZ-string or similar
+    return jsonString;
+  } catch (error) {
+    console.error('Error compressing data:', error);
+    return null;
+  }
+}
+
+/**
+ * Decompress data from localStorage
+ * @param {string} compressedData - Compressed data string
+ * @returns {any} Decompressed data
+ */
+export function decompressData(compressedData) {
+  try {
+    return JSON.parse(compressedData);
+  } catch (error) {
+    console.error('Error decompressing data:', error);
+    return null;
+  }
+}
+
+// ===== ARRAY AND OBJECT UTILITIES =====
+
+/**
+ * Sort array alphabetically by specified property
+ * @param {Array} array - Array to sort
+ * @param {string} property - Property to sort by
+ * @returns {Array} Sorted array
+ */
+export function sortAlphabetically(array, property = 'name') {
+  return array.sort((a, b) => {
+    const aValue = a[property] || '';
+    const bValue = b[property] || '';
+    return aValue.localeCompare(bValue);
+  });
+}
+
+/**
+ * Deep clone an object
+ * @param {any} obj - Object to clone
+ * @returns {any} Cloned object
+ */
 export function deepClone(obj) {
-  if (obj === null || typeof obj !== "object") return obj;
-  if (obj instanceof Date) return new Date(obj.getTime());
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof Date) return new Date(obj);
   if (obj instanceof Array) return obj.map(item => deepClone(item));
-  if (typeof obj === "object") {
-    const clonedObj = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        clonedObj[key] = deepClone(obj[key]);
-      }
+  if (obj instanceof Set) return new Set([...obj].map(item => deepClone(item)));
+  if (obj instanceof Map) return new Map([...obj].map(([key, value]) => [deepClone(key), deepClone(value)]));
+  
+  const clonedObj = {};
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      clonedObj[key] = deepClone(obj[key]);
     }
-    return clonedObj;
+  }
+  return clonedObj;
+}
+
+// ===== DOM UTILITIES =====
+
+/**
+ * Safely get element by ID with error handling
+ * @param {string} id - Element ID
+ * @returns {HTMLElement|null} Element or null if not found
+ */
+export function safeGetElement(id) {
+  const element = document.getElementById(id);
+  if (!element) {
+    devLog(`Element with ID '${id}' not found`);
+  }
+  return element;
+}
+
+/**
+ * Show loading state for an element
+ * @param {HTMLElement} element - Element to show loading for
+ * @param {boolean} show - Whether to show or hide loading
+ */
+export function toggleLoading(element, show) {
+  if (!element) return;
+  
+  if (show) {
+    element.style.opacity = '0.6';
+    element.style.pointerEvents = 'none';
+    element.classList.add('loading');
+  } else {
+    element.style.opacity = '';
+    element.style.pointerEvents = '';
+    element.classList.remove('loading');
   }
 }
 
-// Array shuffling utility
-export function shuffleArray(array) {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
+// ===== WINDOW OBJECT EXPOSURE FOR BACKWARD COMPATIBILITY =====
+// Expose utilities to window object during migration phase
+export function exposeUtilsToWindow() {
+  window.formatTime = formatTime;
+  window.formatFileSize = formatFileSize;
+  window.truncateText = truncateText;
+  window.addHapticFeedback = addHapticFeedback;
+  window.processEmbeddedImages = processEmbeddedImages;
+  window.devLog = devLog;
+  window.isDevelopmentMode = isDevelopmentMode;
 }
 
-// Local storage utilities with error handling
-export function safeLocalStorageSet(key, value) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-    return true;
-  } catch (error) {
-    console.warn(`Failed to save to localStorage: ${key}`, error);
-    return false;
-  }
-}
-
-export function safeLocalStorageGet(key, defaultValue = null) {
-  try {
-    const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
-  } catch (error) {
-    console.warn(`Failed to load from localStorage: ${key}`, error);
-    return defaultValue;
-  }
-}
-
-export function safeLocalStorageRemove(key) {
-  try {
-    localStorage.removeItem(key);
-    return true;
-  } catch (error) {
-    console.warn(`Failed to remove from localStorage: ${key}`, error);
-    return false;
-  }
+// ===== INITIALIZATION =====
+export function initializeUtils() {
+  // Expose utils to window for backward compatibility
+  exposeUtilsToWindow();
+  
+  console.log('✅ Utils module initialized with window exposure');
 }

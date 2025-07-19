@@ -38,12 +38,28 @@ python scripts/scraper.py
 
 ## Architecture
 
-### Frontend Architecture (`script.js`, `index.html`, `styles.css`)
-- **State Management**: Global variables for current exam, questions, UI state, and statistics
-- **Event System**: Centralized event listener setup in `setupEventListeners()`
+### Frontend Architecture - Progressive Modular Migration ⚠️
+**Current State**: Migrating from monolithic to modular ES6 architecture
+
+#### Current Architecture (`script.js`, `index.html`, `styles.css`)
+- **State Management**: Centralized global variables (8908 lines in script.js)
+- **Event System**: 90+ event listeners configured in `setupEventListeners()`
 - **Data Flow**: Async JSON loading → state update → DOM rendering
 - **Features**: Question navigation, favorites/notes system, statistics tracking, export functionality
 - **Critical Pattern**: Exam lists MUST always be sorted alphabetically using `localeCompare()`
+
+#### Target Architecture (Modular ES6) 🎯
+- **Modules**: 10 specialized modules (`state.js`, `ui.js`, `navigation.js`, `data.js`, etc.)
+- **Orchestration**: `app.js` as central orchestrator
+- **Communication**: Bidirectional synchronization with `window.*` during transition
+- **Compatibility**: Strict preservation of all existing functionalities
+
+#### Critical Migration Rules
+1. **No functionality must be broken** during migration
+2. **Initialization order preserved**: DOMContentLoaded → setupEventListeners → loadData
+3. **HTML compatibility maintained**: All onclick and event handlers functional
+4. **Performance identical** or improved
+5. **Regression testing** after each step
 
 ### Backend Architecture (`scripts/`)
 - **Scraper (`scraper.py`)**: Core web scraping logic with rate limiting (5-10 second delays)

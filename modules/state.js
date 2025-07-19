@@ -1,23 +1,25 @@
-// Global Application State Management
-// This module contains all global state variables and provides centralized state management
+/**
+ * State Management Module
+ * Centralizes all global state variables and provides synchronization with window.*
+ */
 
-// Global state variables
+// ===== CORE EXAM STATE =====
 export let currentExam = null;
 export let currentQuestions = [];
 export let currentQuestionIndex = 0;
 export let selectedAnswers = new Set();
 export let isValidated = false;
 export let isHighlightEnabled = false;
-export let isHighlightTemporaryOverride = false; // Track if user manually toggled highlight
-export let questionStartTime = null; // Track when question was started
+export let isHighlightTemporaryOverride = false;
+export let questionStartTime = null;
 
-// Search and filter state
-export let allQuestions = []; // Store original questions array
-export let filteredQuestions = []; // Store filtered results
-export let isSearchActive = false; // Track if search/filter is active
-export let searchCache = {}; // Cache search results for performance
+// ===== SEARCH AND FILTER STATE =====
+export let allQuestions = [];
+export let filteredQuestions = [];
+export let isSearchActive = false;
+export let searchCache = {};
 
-// Application settings with default values
+// ===== SETTINGS STATE =====
 export let settings = {
   showDiscussionDefault: false,
   highlightDefault: false,
@@ -25,175 +27,144 @@ export let settings = {
   showQuestionToolbar: false,
   showAdvancedSearch: false,
   sidebarOpen: false,
-  enableLazyLoading: false, // Lazy loading disabled by default
-  showMainProgressBar: true, // Main progress bar enabled by default
-  showTooltips: false, // Tooltips disabled by default
-  enableResumePosition: false, // Resume position disabled by default
-  autoSavePosition: false, // Auto-save position disabled by default
+  enableLazyLoading: false,
+  showMainProgressBar: true,
+  showTooltips: false,
+  enableResumePosition: false,
+  autoSavePosition: false,
 };
 
-// Available exams mapping (will be populated dynamically)
+// ===== DATA SYSTEMS STATE =====
 export let availableExams = {};
-
-// Lazy loading system configuration
 export let lazyLoadingConfig = {
-  chunkSize: 50, // Questions per chunk
-  loadedChunks: new Map(), // Map of chunkId -> questions array
+  chunkSize: 50,
+  loadedChunks: new Map(),
   currentChunk: 0,
   totalChunks: 0,
-  preloadBuffer: 1, // Number of chunks to preload ahead/behind
-  isChunkedExam: false, // Whether current exam uses chunking
-  examMetadata: null, // Metadata for chunked exams
+  preloadBuffer: 1,
+  isChunkedExam: false,
+  examMetadata: null,
 };
 
-// Favorites and Notes system
 export let favoritesData = {
-  favorites: {}, // { examCode: { questionNumber: { isFavorite: true, category: 'important', note: 'text', timestamp: timestamp } } }
-  categories: ["Important", "Review", "Difficult"], // Default categories
-  customCategories: [], // User-defined categories
-  isRevisionMode: false, // Track if we're in revision mode
+  favorites: {},
+  categories: ["Important", "Review", "Difficult"],
+  customCategories: [],
+  isRevisionMode: false,
   revisionFilter: {
     showFavorites: true,
-    showCategories: [], // Categories to show in revision mode
-    showNotes: true, // Show only questions with notes
+    showCategories: [],
+    showNotes: true,
   },
 };
 
-// Statistics system
 export let statistics = {
-  sessions: [], // Array of session objects
+  sessions: [],
   currentSession: null,
   totalStats: {
     totalQuestions: 0,
     totalCorrect: 0,
     totalIncorrect: 0,
-    totalPreview: 0, // New field for preview answers
+    totalPreview: 0,
     totalTime: 0,
-    examStats: {}, // Per-exam statistics
+    examStats: {},
   },
 };
 
-// Resume position system
-export let resumePositions = {
-  // examCode: { questionIndex: number, timestamp: number, questionNumber: number, totalQuestions: number, lastSessionId: string }
-};
+export let resumePositions = {};
 
-// Navigation history for back/forward functionality
-export let navigationHistory = [];
-export let historyIndex = -1;
+// ===== SYNCHRONIZATION FUNCTIONS =====
+/**
+ * Synchronizes module state with window.* for backward compatibility
+ * This ensures existing code continues to work during migration
+ */
+export function syncToWindow() {
+  // Core exam state
+  window.currentExam = currentExam;
+  window.currentQuestions = currentQuestions;
+  window.currentQuestionIndex = currentQuestionIndex;
+  window.selectedAnswers = selectedAnswers;
+  window.isValidated = isValidated;
+  window.isHighlightEnabled = isHighlightEnabled;
+  window.isHighlightTemporaryOverride = isHighlightTemporaryOverride;
+  window.questionStartTime = questionStartTime;
+  
+  // Search and filter state
+  window.allQuestions = allQuestions;
+  window.filteredQuestions = filteredQuestions;
+  window.isSearchActive = isSearchActive;
+  window.searchCache = searchCache;
+  
+  // Settings and data systems
+  window.settings = settings;
+  window.availableExams = availableExams;
+  window.lazyLoadingConfig = lazyLoadingConfig;
+  window.favoritesData = favoritesData;
+  window.statistics = statistics;
+  window.resumePositions = resumePositions;
+}
 
-// Mobile touch interaction state
-export let touchStartX = 0;
-export let touchStartY = 0;
-export let touchEndX = 0;
-export let touchEndY = 0;
-export let isSwiping = false;
-export let touchStartTime = 0;
+/**
+ * Synchronizes window.* state back to modules
+ * This allows existing code to modify state and have modules pick up changes
+ */
+export function syncFromWindow() {
+  // Only sync if window properties exist (avoid overwriting with undefined)
+  if (window.currentExam !== undefined) currentExam = window.currentExam;
+  if (window.currentQuestions !== undefined) currentQuestions = window.currentQuestions;
+  if (window.currentQuestionIndex !== undefined) currentQuestionIndex = window.currentQuestionIndex;
+  if (window.selectedAnswers !== undefined) selectedAnswers = window.selectedAnswers;
+  if (window.isValidated !== undefined) isValidated = window.isValidated;
+  if (window.isHighlightEnabled !== undefined) isHighlightEnabled = window.isHighlightEnabled;
+  if (window.isHighlightTemporaryOverride !== undefined) isHighlightTemporaryOverride = window.isHighlightTemporaryOverride;
+  if (window.questionStartTime !== undefined) questionStartTime = window.questionStartTime;
+  
+  if (window.allQuestions !== undefined) allQuestions = window.allQuestions;
+  if (window.filteredQuestions !== undefined) filteredQuestions = window.filteredQuestions;
+  if (window.isSearchActive !== undefined) isSearchActive = window.isSearchActive;
+  if (window.searchCache !== undefined) searchCache = window.searchCache;
+  
+  if (window.settings !== undefined) settings = window.settings;
+  if (window.availableExams !== undefined) availableExams = window.availableExams;
+  if (window.lazyLoadingConfig !== undefined) lazyLoadingConfig = window.lazyLoadingConfig;
+  if (window.favoritesData !== undefined) favoritesData = window.favoritesData;
+  if (window.statistics !== undefined) statistics = window.statistics;
+  if (window.resumePositions !== undefined) resumePositions = window.resumePositions;
+}
 
-// UI state management
-export let sidebarOpen = false;
-
-// State mutation functions - these allow controlled modification of state
+// ===== STATE UPDATE FUNCTIONS =====
 export function updateCurrentExam(exam) {
   currentExam = exam;
+  syncToWindow();
 }
 
 export function updateCurrentQuestions(questions) {
   currentQuestions = questions;
+  syncToWindow();
 }
 
 export function updateCurrentQuestionIndex(index) {
   currentQuestionIndex = index;
+  syncToWindow();
 }
 
 export function updateSelectedAnswers(answers) {
   selectedAnswers = answers;
-}
-
-export function updateIsValidated(validated) {
-  isValidated = validated;
-}
-
-export function updateIsHighlightEnabled(enabled) {
-  isHighlightEnabled = enabled;
-}
-
-export function updateIsHighlightTemporaryOverride(override) {
-  isHighlightTemporaryOverride = override;
-}
-
-export function updateQuestionStartTime(time) {
-  questionStartTime = time;
-}
-
-export function updateAllQuestions(questions) {
-  allQuestions = questions;
-}
-
-export function updateFilteredQuestions(questions) {
-  filteredQuestions = questions;
-}
-
-export function updateIsSearchActive(active) {
-  isSearchActive = active;
-}
-
-export function updateSearchCache(cache) {
-  searchCache = cache;
+  syncToWindow();
 }
 
 export function updateSettings(newSettings) {
   settings = { ...settings, ...newSettings };
+  syncToWindow();
 }
 
-export function updateAvailableExams(exams) {
-  availableExams = exams;
-}
-
-export function updateLazyLoadingConfig(config) {
-  lazyLoadingConfig = { ...lazyLoadingConfig, ...config };
-}
-
-export function updateFavoritesData(data) {
-  favoritesData = { ...favoritesData, ...data };
-}
-
-export function updateStatistics(stats) {
-  statistics = { ...statistics, ...stats };
-}
-
-export function updateResumePositions(positions) {
-  resumePositions = positions;
-}
-
-export function updateNavigationHistory(history) {
-  navigationHistory = history;
-}
-
-export function updateHistoryIndex(index) {
-  historyIndex = index;
-}
-
-export function updateSidebarOpen(open) {
-  sidebarOpen = open;
-}
-
-// Reset functions for clearing state
-export function resetQuestionState() {
-  selectedAnswers = new Set();
-  isValidated = false;
-  isHighlightTemporaryOverride = false;
-  questionStartTime = null;
-}
-
-export function resetSearchState() {
-  allQuestions = [];
-  filteredQuestions = [];
-  isSearchActive = false;
-  searchCache = {};
-}
-
-export function resetNavigationState() {
-  navigationHistory = [];
-  historyIndex = -1;
+// ===== INITIALIZATION =====
+/**
+ * Initialize state module - sets up initial synchronization
+ */
+export function initializeState() {
+  // Perform initial sync to window for backward compatibility
+  syncToWindow();
+  
+  console.log('✅ State module initialized with window synchronization');
 }
