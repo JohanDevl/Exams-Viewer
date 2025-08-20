@@ -161,3 +161,5 @@ exports/
 
 # Keep CLAUDE.md - it's important for the repository
 !CLAUDE.md
+
+.conductor/
