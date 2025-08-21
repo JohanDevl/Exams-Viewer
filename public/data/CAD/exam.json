@@ -1,6 +1,6 @@
 {
   "status": "complete",
-  "error": "Error: Request or parsing failed: Failed to get response",
+  "error": "",
   "questions": [
     {
       "question": "Which of the following statements is true for the Form Designer? a) To add a field to the form layout, drag the field from the Fields tab to the desired destination on the form. b) To create a new field on a form's table, drag the appropriate data type from the Field Types tab to the form and then configure the new field. c) To remove a field from the form layout, hover over the field to enable the Action buttons, and select the Delete (X) button. d) To add a section to the form layout, drag it from the Field Types tab to the desired destination on the form.<br/>",
@@ -2249,7 +2249,7 @@
       ],
       "question_number": "34",
       "link": "https://www.examtopics.com/discussions/servicenow/view/64121-exam-cad-topic-1-question-34-discussion/",
-      "most_voted": "C",
+      "most_voted": "D",
       "images": {},
       "error": null
     },
@@ -7134,8 +7134,8 @@
   ],
   "update_stats": {
     "new_count": 0,
-    "updated_count": 0,
-    "skipped_count": 86,
+    "updated_count": 1,
+    "skipped_count": 157,
     "total_processed": 158
   }
 }

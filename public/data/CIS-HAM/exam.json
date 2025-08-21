@@ -4473,6 +4473,27 @@
       "error": null
     },
     {
+      "question": "What is the focus of asset management?",
+      "answers": [
+        "A. Financial tracking of an organization's property",
+        "B. Financial tracking of the organization's network",
+        "C. Building of the organization's property",
+        "D. Building the elements that create the organization's network"
+      ],
+      "comments": [
+        {
+          "content": "It can't be [Option X] because of [reason]. It can't be [Option Y] because... So it must be D.",
+          "selected_answer": "D",
+          "replies": []
+        }
+      ],
+      "question_number": "117",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309998-exam-cis-ham-topic-1-question-117-discussion/",
+      "most_voted": "D",
+      "images": {},
+      "error": null
+    },
+    {
       "question": "Which tier of the capability blueprint focuses on achieving best-in-class?",
       "answers": [
         "A. Operational integration",
@@ -6092,6 +6113,48 @@
       "error": null
     },
     {
+      "question": "What is an attribute that will remain unchanged throughout the life of the asset?",
+      "answers": [
+        "A. Memory",
+        "B. Operating system",
+        "C. CPU type",
+        "D. Serial number"
+      ],
+      "comments": [
+        {
+          "content": "The answer is C.",
+          "selected_answer": "C",
+          "replies": []
+        }
+      ],
+      "question_number": "170",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309999-exam-cis-ham-topic-1-question-170-discussion/",
+      "most_voted": "C",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "During the hardware model normalization process, which field is the most important criteria for creating a fully Normalized hardware model?",
+      "answers": [
+        "A. Model number",
+        "B. Display name",
+        "C. Manufacturer",
+        "D. Model name"
+      ],
+      "comments": [
+        {
+          "content": "Locked in on C. The other choices are clearly distractors.",
+          "selected_answer": "C",
+          "replies": []
+        }
+      ],
+      "question_number": "171",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310000-exam-cis-ham-topic-1-question-171-discussion/",
+      "most_voted": "C",
+      "images": {},
+      "error": null
+    },
+    {
       "question": "Key features of consumables are: (Choose two.)",
       "answers": [
         "A. Can be discovered",
@@ -6246,6 +6309,28 @@
       "error": null
     },
     {
+      "question": "Which are assets? (Choose three.)",
+      "answers": [
+        "A. Servers",
+        "B. Software entitlements",
+        "C. Software distributions",
+        "D. Network cables",
+        "E. Facilities"
+      ],
+      "comments": [
+        {
+          "content": "My gut says D. It aligns with best practices.",
+          "selected_answer": "D",
+          "replies": []
+        }
+      ],
+      "question_number": "179",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310001-exam-cis-ham-topic-1-question-179-discussion/",
+      "most_voted": "D",
+      "images": {},
+      "error": null
+    },
+    {
       "question": "Which view within the Hardware Asset Management Workspace enables Asset Managers to work on features such as RMA request lines asset audits, disposal orders and stock orders?",
       "answers": [
         "A. Asset estate",
@@ -6351,9 +6436,9 @@
     }
   ],
   "update_stats": {
-    "new_count": 0,
+    "new_count": 4,
     "updated_count": 0,
     "skipped_count": 180,
-    "total_processed": 180
+    "total_processed": 184
   }
 }

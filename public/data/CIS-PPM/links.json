@@ -1,5 +1,5 @@
 {
-  "page_num": 129,
+  "page_num": 131,
   "status": "complete",
   "links": [
     "/discussions/servicenow/view/105781-exam-cis-ppm-topic-1-question-1-discussion/",
@@ -162,15 +162,14 @@
     "/discussions/servicenow/view/109001-exam-cis-ppm-topic-1-question-161-discussion/",
     "/discussions/servicenow/view/108988-exam-cis-ppm-topic-1-question-162-discussion/",
     "/discussions/servicenow/view/116890-exam-cis-ppm-topic-1-question-163-discussion/",
-    "/discussions/servicenow/view/129824-exam-cis-ppm-topic-1-question-164-discussion/",
     "/discussions/servicenow/view/118069-exam-cis-ppm-topic-1-question-165-discussion/",
     "/discussions/servicenow/view/118065-exam-cis-ppm-topic-1-question-166-discussion/",
     "/discussions/servicenow/view/118066-exam-cis-ppm-topic-1-question-167-discussion/",
     "/discussions/servicenow/view/129826-exam-cis-ppm-topic-1-question-168-discussion/",
     "/discussions/servicenow/view/117270-exam-cis-ppm-topic-1-question-169-discussion/"
   ],
-  "collected_at": "2025-08-05T23:39:08.737554",
+  "collected_at": "2025-08-21T01:26:45.315777",
   "method": "servicenow_batch_collection",
   "exam_code": "CIS-PPM",
-  "links_count": 166
+  "links_count": 165
 }

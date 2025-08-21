@@ -4894,6 +4894,27 @@
       "error": null
     },
     {
+      "question": "What is the role of Trigger conditions in activity sets?",
+      "answers": [
+        "A. It defines specific employees to the activity set targets.",
+        "B. It defines when the activity set should be initiated.",
+        "C. It defines order number for the activity set.",
+        "D. It defines the relationships between fields in various tables."
+      ],
+      "comments": [
+        {
+          "content": "Feels like B is the one. Does anyone disagree?",
+          "selected_answer": "B",
+          "replies": []
+        }
+      ],
+      "question_number": "151",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310002-exam-cis-hr-topic-1-question-151-discussion/",
+      "most_voted": "B",
+      "images": {},
+      "error": null
+    },
+    {
       "question": "Which plugin is recommended when upgrading from the global version of HR to the scoped version?",
       "answers": [
         "A. Human Resources Scoped App: Employee Relations [com.sn_hr_employee_relations]",
@@ -4989,6 +5010,27 @@
       "error": null
     },
     {
+      "question": "After an HRSD implementation, what capabilities exist for a System Administrator attempting to impersonate an HR member once the HR Admin role has been removed? (Choose two.)",
+      "answers": [
+        "A. System Admin can grant scoped HR roles.",
+        "B. System Admin can view HR Cases and confidential profile information.",
+        "C. System Admin cannot grant scoped HR roles.",
+        "D. System Admin cannot view HR Cases and confidential profile information."
+      ],
+      "comments": [
+        {
+          "content": "I'd bet my certification on A. It's the only logical solution presented.",
+          "selected_answer": "A",
+          "replies": []
+        }
+      ],
+      "question_number": "156",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310003-exam-cis-hr-topic-1-question-156-discussion/",
+      "most_voted": "A",
+      "images": {},
+      "error": null
+    },
+    {
       "question": "Which application delivers employees an omni-channel learning experience to enable timely access to the correct learning?",
       "answers": [
         "A. Document Templates",
@@ -5061,6 +5103,27 @@
       "question_number": "159",
       "link": "https://www.examtopics.com/discussions/servicenow/view/134798-exam-cis-hr-topic-1-question-159-discussion/",
       "most_voted": "D",
+      "error": null
+    },
+    {
+      "question": "Which HRSD application synchronizes ServiceNow with external HR systems?",
+      "answers": [
+        "A. HR Integrations",
+        "B. Core HR Application",
+        "C. Lifecycle Events",
+        "D. Employee Center Pro"
+      ],
+      "comments": [
+        {
+          "content": "My initial thought is A, and after re-reading, I'm sticking with it.",
+          "selected_answer": "A",
+          "replies": []
+        }
+      ],
+      "question_number": "160",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310004-exam-cis-hr-topic-1-question-160-discussion/",
+      "most_voted": "A",
+      "images": {},
       "error": null
     },
     {
@@ -5164,6 +5227,27 @@
       "error": null
     },
     {
+      "question": "Which scoped table is an extension of the Task table and allow only users with approved roles to access it?",
+      "answers": [
+        "A. Human Resources Scoped App integrations [com.sn_nr_mtegrations]",
+        "B. Knowledge Management Advanced Installer [com.snc.knowledge_advanced.installer]",
+        "C. HR Core Case [sn_hr_core_case]",
+        "D. Project Portfolio Suite [com.snc.project_portfolio_suite]"
+      ],
+      "comments": [
+        {
+          "content": "Feels like D is the one. Does anyone disagree?",
+          "selected_answer": "D",
+          "replies": []
+        }
+      ],
+      "question_number": "165",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310005-exam-cis-hr-topic-1-question-165-discussion/",
+      "most_voted": "D",
+      "images": {},
+      "error": null
+    },
+    {
       "question": "Which feature prevents editing or purging of employee documents based on an HR Profile?",
       "answers": [
         "A. Retention Policy",
@@ -5184,6 +5268,27 @@
       "error": null
     },
     {
+      "question": "Which field on the Knowledge form categorizes the Knowledge record within the Knowledge base?",
+      "answers": [
+        "A. Category picker",
+        "B. Knowledge taxonomy",
+        "C. Article organizer",
+        "D. Topic categories related list"
+      ],
+      "comments": [
+        {
+          "content": "I’m going with A because the others are clearly non-starters.",
+          "selected_answer": "A",
+          "replies": []
+        }
+      ],
+      "question_number": "167",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310006-exam-cis-hr-topic-1-question-167-discussion/",
+      "most_voted": "A",
+      "images": {},
+      "error": null
+    },
+    {
       "question": "In terms of bulk cases what Status label is given to a User that no longer matches the criteria defined in User Segments?",
       "answers": [
         "A. Duplicate",
@@ -5201,6 +5306,27 @@
       "question_number": "168",
       "link": "https://www.examtopics.com/discussions/servicenow/view/135554-exam-cis-hr-topic-1-question-168-discussion/",
       "most_voted": "D",
+      "error": null
+    },
+    {
+      "question": "What type of information does the HR Profile contain?",
+      "answers": [
+        "A. Employee relations cases",
+        "B. Employee skills",
+        "C. Personal employee data",
+        "D. User ID and department information"
+      ],
+      "comments": [
+        {
+          "content": "This is a tough one. My best educated guess is D.",
+          "selected_answer": "D",
+          "replies": []
+        }
+      ],
+      "question_number": "169",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310007-exam-cis-hr-topic-1-question-169-discussion/",
+      "most_voted": "D",
+      "images": {},
       "error": null
     },
     {
@@ -5233,6 +5359,27 @@
       "question_number": "170",
       "link": "https://www.examtopics.com/discussions/servicenow/view/132787-exam-cis-hr-topic-1-question-170-discussion/",
       "most_voted": "A",
+      "error": null
+    },
+    {
+      "question": "What are the advantages of removing the HR Admin role from the system Admin role after the HR Implementation tasks have been completed? (Choose two.)",
+      "answers": [
+        "A. Confidential HR data is only accessible to users with an HR role",
+        "B. HR has control over further HR configurations",
+        "C. System Admin can still grant scoped HR roles",
+        "D. System admin can view HR Cases and confidential profile information"
+      ],
+      "comments": [
+        {
+          "content": "90% sure it's C. The scenario points directly to it.",
+          "selected_answer": "C",
+          "replies": []
+        }
+      ],
+      "question_number": "171",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310008-exam-cis-hr-topic-1-question-171-discussion/",
+      "most_voted": "C",
+      "images": {},
       "error": null
     },
     {
@@ -5312,6 +5459,153 @@
       "error": null
     },
     {
+      "question": "As part of the implementation for an HR Enterprise customer, a new Lifecycle Event for a leave of absence was created. What additional item must be configured in order to initiate the leave of absence Lifecycle Event process for an employee?",
+      "answers": [
+        "A. An assignment rule",
+        "B. A new HR Case",
+        "C. An acceptance from an HR Agent",
+        "D. An HR service"
+      ],
+      "comments": [
+        {
+          "content": "My answer: D.",
+          "selected_answer": "D",
+          "replies": []
+        }
+      ],
+      "question_number": "176",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310009-exam-cis-hr-topic-1-question-176-discussion/",
+      "most_voted": "D",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "If the customer has enabled Lifecycle Enterprise, in which Application Scope should they create new Lifecycle Events that will task teams throughout their organization?",
+      "answers": [
+        "A. Human Resources Scoped App: Integrations",
+        "B. Human Resources: Service Portal",
+        "C. Human Resources: Lifecycle Enterprise",
+        "D. Human Resources: Core"
+      ],
+      "comments": [
+        {
+          "content": "I'll go with A.",
+          "selected_answer": "A",
+          "replies": []
+        }
+      ],
+      "question_number": "177",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310010-exam-cis-hr-topic-1-question-177-discussion/",
+      "most_voted": "A",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "Which HRSD application limits agent tasking only within the HR department?",
+      "answers": [
+        "A. Lifecycle Events",
+        "B. HR Performance Analytics",
+        "C. Lifecycle Events for Enterprise",
+        "D. Employee Center"
+      ],
+      "comments": [
+        {
+          "content": "I’m going with B because the others are clearly non-starters.",
+          "selected_answer": "B",
+          "replies": []
+        }
+      ],
+      "question_number": "180",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310011-exam-cis-hr-topic-1-question-180-discussion/",
+      "most_voted": "B",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "What method is used to set policies that determines how long documents are retained and who is covered?",
+      "answers": [
+        "A. Create a new policy trough COE Security",
+        "B. Create a new policy using ACLs",
+        "C. Go through Employee Documents > Document Type",
+        "D. Go through HR Service Template > Document Type"
+      ],
+      "comments": [
+        {
+          "content": "This is a tough one. My best educated guess is D.",
+          "selected_answer": "D",
+          "replies": []
+        }
+      ],
+      "question_number": "181",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310012-exam-cis-hr-topic-1-question-181-discussion/",
+      "most_voted": "D",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "Which ServiceNow security feature allows access to applications and modules?",
+      "answers": [
+        "A. Scoped Application",
+        "B. Roles",
+        "C. Simple Security",
+        "D. User Authentication"
+      ],
+      "comments": [
+        {
+          "content": "Not super confident, but I’ll go with A.",
+          "selected_answer": "A",
+          "replies": []
+        }
+      ],
+      "question_number": "182",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310013-exam-cis-hr-topic-1-question-182-discussion/",
+      "most_voted": "A",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "When testing a lifecycle event, you deselected certain cards. When running the test, what does the system do with the activities that were deselected?",
+      "answers": [
+        "A. The activity wit be skipped for all future lifecycle events",
+        "B. The activity will be created and automatically cancelled for the test",
+        "C. The activity will be created and must be manually closed for the test",
+        "D. The activity will be skipped for the test"
+      ],
+      "comments": [
+        {
+          "content": "I checked the official docs on this topic, and A is the correct implementation.",
+          "selected_answer": "A",
+          "replies": []
+        }
+      ],
+      "question_number": "183",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310014-exam-cis-hr-topic-1-question-183-discussion/",
+      "most_voted": "A",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "Which plugin allows agent tasking only within the HR department?",
+      "answers": [
+        "A. Human Resources Scoped App: Integrations [com.sn_hr_integrations]",
+        "B. Human Resources Scoped App: Lifecycle Events [com.sn_hr_lifecycle_events]",
+        "C. Human Resources Scoped App: Lifecycle Events for Enterprise [com.sn_hr_lifecycle_ent]",
+        "D. Human Resources Scoped App: Employee Relations [com.sn_hr_employee_relations]"
+      ],
+      "comments": [
+        {
+          "content": "Feels like A is the intended answer here. The wording is tricky.",
+          "selected_answer": "A",
+          "replies": []
+        }
+      ],
+      "question_number": "184",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310015-exam-cis-hr-topic-1-question-184-discussion/",
+      "most_voted": "A",
+      "images": {},
+      "error": null
+    },
+    {
       "question": "Which feature enables agents to have discussions about their work in the Next Experience user interface?",
       "answers": [
         "A. Work Notes",
@@ -5332,6 +5626,27 @@
       "error": null
     },
     {
+      "question": "What role, at a minimum, is required to configure an HR integration source?",
+      "answers": [
+        "A. HR Manager [sn_hr_core.manager]",
+        "B. Integrations Admin [sn_hr_integrations.admin]",
+        "C. HR Admin [sn_hr_core.admin]",
+        "D. HR Basic [sn_hr_core.basic]"
+      ],
+      "comments": [
+        {
+          "content": "This feels like a 50/50 between two options. I'll go with B.",
+          "selected_answer": "B",
+          "replies": []
+        }
+      ],
+      "question_number": "186",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310016-exam-cis-hr-topic-1-question-186-discussion/",
+      "most_voted": "B",
+      "images": {},
+      "error": null
+    },
+    {
       "question": "Which application is used to analyze trends, patterns, and data on the Team Insights page?",
       "answers": [
         "A. Manager Hub",
@@ -5349,6 +5664,48 @@
       "question_number": "187",
       "link": "https://www.examtopics.com/discussions/servicenow/view/148092-exam-cis-hr-topic-1-question-187-discussion/",
       "most_voted": "A",
+      "error": null
+    },
+    {
+      "question": "Which feature allows HR Administrators to define when surveys are sent?",
+      "answers": [
+        "A. Survey Designer",
+        "B. Assessments",
+        "C. Listening Posts",
+        "D. Trigger Conditions"
+      ],
+      "comments": [
+        {
+          "content": "C seems like the most plausible answer, though [Other Option] is a clever distractor.",
+          "selected_answer": "C",
+          "replies": []
+        }
+      ],
+      "question_number": "188",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310017-exam-cis-hr-topic-1-question-188-discussion/",
+      "most_voted": "C",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "Which feature of Lifecycle Events will revert an already completed activity such as the workplace setup?",
+      "answers": [
+        "A. Rescind Activity Set",
+        "B. Rescind Hire",
+        "C. Undo Activities",
+        "D. Activity Container"
+      ],
+      "comments": [
+        {
+          "content": "It's definitely B. This is a classic exam scenario.",
+          "selected_answer": "B",
+          "replies": []
+        }
+      ],
+      "question_number": "189",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310018-exam-cis-hr-topic-1-question-189-discussion/",
+      "most_voted": "B",
+      "images": {},
       "error": null
     },
     {
@@ -5398,9 +5755,9 @@
     }
   ],
   "update_stats": {
-    "new_count": 0,
+    "new_count": 17,
     "updated_count": 0,
     "skipped_count": 169,
-    "total_processed": 169
+    "total_processed": 186
   }
 }

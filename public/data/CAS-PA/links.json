@@ -1,5 +1,5 @@
 {
-  "page_num": 129,
+  "page_num": 131,
   "status": "complete",
   "links": [
     "/discussions/servicenow/view/128111-exam-cas-pa-topic-1-question-1-discussion/",
@@ -83,7 +83,7 @@
     "/discussions/servicenow/view/137460-exam-cas-pa-topic-1-question-82-discussion/",
     "/discussions/servicenow/view/146914-exam-cas-pa-topic-1-question-83-discussion/"
   ],
-  "collected_at": "2025-08-05T23:39:08.734166",
+  "collected_at": "2025-08-21T01:26:45.309688",
   "method": "servicenow_batch_collection",
   "exam_code": "CAS-PA",
   "links_count": 80

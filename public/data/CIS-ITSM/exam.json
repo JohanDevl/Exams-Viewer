@@ -10735,6 +10735,11 @@
       ],
       "comments": [
         {
+          "content": "D makes sense",
+          "selected_answer": "D",
+          "replies": []
+        },
+        {
           "content": "service catalog<<configuration continued<<processing a service catalog item",
           "selected_answer": "D",
           "replies": []
@@ -10754,7 +10759,7 @@
       ],
       "question_number": "217",
       "link": "https://www.examtopics.com/discussions/servicenow/view/305054-exam-cis-itsm-topic-1-question-217-discussion/",
-      "most_voted": "C",
+      "most_voted": "D",
       "images": {},
       "error": null
     },
@@ -11007,8 +11012,8 @@
   ],
   "update_stats": {
     "new_count": 0,
-    "updated_count": 0,
-    "skipped_count": 224,
+    "updated_count": 1,
+    "skipped_count": 223,
     "total_processed": 224
   }
 }

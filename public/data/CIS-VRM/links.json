@@ -1,5 +1,5 @@
 {
-  "page_num": 129,
+  "page_num": 131,
   "status": "complete",
   "links": [
     "/discussions/servicenow/view/118489-exam-cis-vrm-topic-1-question-1-discussion/",
@@ -62,7 +62,7 @@
     "/discussions/servicenow/view/122990-exam-cis-vrm-topic-1-question-59-discussion/",
     "/discussions/servicenow/view/122991-exam-cis-vrm-topic-1-question-60-discussion/"
   ],
-  "collected_at": "2025-08-05T23:39:08.740022",
+  "collected_at": "2025-08-21T01:26:45.318655",
   "method": "servicenow_batch_collection",
   "exam_code": "CIS-VRM",
   "links_count": 59

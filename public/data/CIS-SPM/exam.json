@@ -1057,6 +1057,27 @@
       "error": null
     },
     {
+      "question": "Which table would an admin modify in order to add extra columns to the side panel or remove default column choices on the Prioritization page within the Portfolio Planning Workspace?",
+      "answers": [
+        "A. [sn_align_ws_portfolio_plan]",
+        "B. [sn_align_cmn_int_choice_map]",
+        "C. [sn_align_core_planning_item]",
+        "D. [sn_align_core_lens]"
+      ],
+      "comments": [
+        {
+          "content": "https://www.servicenow.com/docs/bundle/yokohama-it-business-management/page/product/portfolio-planning/concept/customizing-the-columns-for-prioritization-page-in-portfolio-planning.html",
+          "selected_answer": "C",
+          "replies": []
+        }
+      ],
+      "question_number": "86",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/304826-exam-cis-spm-topic-1-question-86-discussion/",
+      "most_voted": "C",
+      "images": {},
+      "error": null
+    },
+    {
       "question": "Project score is calculated based on the individual scores of the following attributes: (Choose two.)",
       "answers": [
         "A. Value Score.",
@@ -1241,12 +1262,57 @@
       "link": "https://www.examtopics.com/discussions/servicenow/view/304313-exam-cis-spm-topic-1-question-104-discussion/",
       "most_voted": "ABC",
       "error": null
+    },
+    {
+      "question": "At which point in the Demand Management lifecycle do assessments get sent to stakeholders?",
+      "answers": [
+        "A. Creation",
+        "B. Assessment",
+        "C. Planning",
+        "D. Screening"
+      ],
+      "comments": [
+        {
+          "content": "In the screening phase assessment are sent",
+          "selected_answer": "D",
+          "replies": []
+        }
+      ],
+      "question_number": "111",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309788-exam-cis-spm-topic-1-question-111-discussion/",
+      "most_voted": "D",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "What are the available resource states in the Resource status field on the New Resource Assignment form? (Choose four.)",
+      "answers": [
+        "A. Cancelled",
+        "B. In Progress",
+        "C. Open",
+        "D. Unassigned",
+        "E. Pending",
+        "F. Approved",
+        "G. Unapproved"
+      ],
+      "comments": [
+        {
+          "content": "Considering the eBook of cis spm",
+          "selected_answer": "DEFG",
+          "replies": []
+        }
+      ],
+      "question_number": "112",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309787-exam-cis-spm-topic-1-question-112-discussion/",
+      "most_voted": "DEFG",
+      "images": {},
+      "error": null
     }
   ],
   "update_stats": {
-    "new_count": 0,
+    "new_count": 3,
     "updated_count": 0,
     "skipped_count": 52,
-    "total_processed": 52
+    "total_processed": 55
   }
 }

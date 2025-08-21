@@ -9340,6 +9340,48 @@
       "error": null
     },
     {
+      "question": "What are examples of what Guided Setup provides? (Choose two.)",
+      "answers": [
+        "A. Provisioning checklist and tasks necessary for setup",
+        "B. Fixed timeline of activities that need to be completed",
+        "C. List of tasks to be executed",
+        "D. Automatic configuration of case form and portal content"
+      ],
+      "comments": [
+        {
+          "content": "I'd bet my certification on B. It's the only logical solution presented.",
+          "selected_answer": "B",
+          "replies": []
+        }
+      ],
+      "question_number": "244",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309993-exam-cis-csm-topic-1-question-244-discussion/",
+      "most_voted": "B",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "In the base instance, cases are automatically closed after how many days?",
+      "answers": [
+        "A. Cases are not automatically closed by default",
+        "B. 5 days",
+        "C. 3 days",
+        "D. 10 days"
+      ],
+      "comments": [
+        {
+          "content": "I'll go with B.",
+          "selected_answer": "B",
+          "replies": []
+        }
+      ],
+      "question_number": "245",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309988-exam-cis-csm-topic-1-question-245-discussion/",
+      "most_voted": "B",
+      "images": {},
+      "error": null
+    },
+    {
       "question": "Which table stores consumer addresses?",
       "answers": [
         "A. cmn_location",
@@ -9359,12 +9401,392 @@
       "most_voted": "A",
       "images": {},
       "error": null
+    },
+    {
+      "question": "Who can manage Install Base entities? (Choose two.)",
+      "answers": [
+        "A. System administrator [admin]",
+        "B. Customer service manager [sn_customerservice_manager]",
+        "C. Data Analysts [data_admin]",
+        "D. Sales Managers [sn_sales_manager]"
+      ],
+      "comments": [
+        {
+          "content": "My best guess is B right now, but I need to study this area more.",
+          "selected_answer": "B",
+          "replies": []
+        }
+      ],
+      "question_number": "249",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309980-exam-cis-csm-topic-1-question-249-discussion/",
+      "most_voted": "B",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "What does a red highlight on a Case's Action status field indicate?",
+      "answers": [
+        "A. The SLA is nearly breached on the Case",
+        "B. The Case is blocked by other tasks or waiting for customer feedback",
+        "C. The case has been escalated and the priority increased",
+        "D. The case needs attention or is waiting for input / review"
+      ],
+      "comments": [
+        {
+          "content": "I'd bet my certification on A. It's the only logical solution presented.",
+          "selected_answer": "A",
+          "replies": []
+        }
+      ],
+      "question_number": "250",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309991-exam-cis-csm-topic-1-question-250-discussion/",
+      "most_voted": "A",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "What is the purpose of a Case Task?",
+      "answers": [
+        "A. Case tasks are only used only for Cases that have a Service Definition",
+        "B. Case tasks document customer information on a Case",
+        "C. Case tasks are used to assign work to the customer",
+        "D. Case tasks document additional work that needs to be completed to resolve the Case"
+      ],
+      "comments": [
+        {
+          "content": "If I had to guess, I’d pick B based on the wording of the question.",
+          "selected_answer": "B",
+          "replies": []
+        }
+      ],
+      "question_number": "251",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309992-exam-cis-csm-topic-1-question-251-discussion/",
+      "most_voted": "B",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "Where should non-configurable attributes be stored?",
+      "answers": [
+        "A. Case Tables",
+        "B. Product Model Tables",
+        "C. Free text",
+        "D. Contract Table"
+      ],
+      "comments": [
+        {
+          "content": "I’m thinking it’s A, but not 100%. The question could be interpreted in two ways.",
+          "selected_answer": "A",
+          "replies": []
+        }
+      ],
+      "question_number": "252",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309996-exam-cis-csm-topic-1-question-252-discussion/",
+      "most_voted": "A",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "What feature allows an agent to provide updates to customers and internal stakeholders while a Case is in progress?",
+      "answers": [
+        "A. Post Case Reviews",
+        "B. Open Case Summary",
+        "C. Case Action Summaries",
+        "D. Active Case Update"
+      ],
+      "comments": [
+        {
+          "content": "Looks like B fits best.",
+          "selected_answer": "B",
+          "replies": []
+        }
+      ],
+      "question_number": "254",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309995-exam-cis-csm-topic-1-question-254-discussion/",
+      "most_voted": "B",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "What actions should be prioritized when storing Product Models with similar non-configurable attributes? (Choose two.)",
+      "answers": [
+        "A. Group them in a baseline table",
+        "B. Use custom tables",
+        "C. Create separate tables for each attribute",
+        "D. Modify each product's data model individually",
+        "E. Ensure attributes match those of existing tables"
+      ],
+      "comments": [
+        {
+          "content": "Kinda torn, but C looks most likely to be what the exam is looking for.",
+          "selected_answer": "C",
+          "replies": []
+        }
+      ],
+      "question_number": "256",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309990-exam-cis-csm-topic-1-question-256-discussion/",
+      "most_voted": "C",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "Which business model involves supporting an organization's private customers and their employees?",
+      "answers": [
+        "A. B2B2B",
+        "B. B2B2C",
+        "C. B2C",
+        "D. B2B"
+      ],
+      "comments": [
+        {
+          "content": "Feels like B is the one. Does anyone disagree?",
+          "selected_answer": "B",
+          "replies": []
+        }
+      ],
+      "question_number": "257",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309989-exam-cis-csm-topic-1-question-257-discussion/",
+      "most_voted": "B",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "For an implementation supporting a business and its customers, which business model should be used?",
+      "answers": [
+        "A. B2B2C",
+        "B. B2B2B",
+        "C. B2C",
+        "D. B2B"
+      ],
+      "comments": [
+        {
+          "content": "I'm voting for D.",
+          "selected_answer": "D",
+          "replies": []
+        }
+      ],
+      "question_number": "259",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309981-exam-cis-csm-topic-1-question-259-discussion/",
+      "most_voted": "D",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "What role do customer data models play in Service CSM from a technical perspective?",
+      "answers": [
+        "A. They support the implementation of various business models",
+        "B. They track employee performance metrics",
+        "C. They facilitate integration with third-party systems",
+        "D. They define the pricing structure for services"
+      ],
+      "comments": [
+        {
+          "content": "It can't be [Option X] because of [reason]. It can't be [Option Y] because... So it must be A.",
+          "selected_answer": "A",
+          "replies": []
+        }
+      ],
+      "question_number": "261",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309994-exam-cis-csm-topic-1-question-261-discussion/",
+      "most_voted": "A",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "When an agent requires additional information from the customer to help solve the case, the case state is:",
+      "answers": [
+        "A. Awaiting Info",
+        "B. Paused",
+        "C. Info Req",
+        "D. Waiting"
+      ],
+      "comments": [
+        {
+          "content": "I’m thinking it’s D, but not 100%. The question could be interpreted in two ways.",
+          "selected_answer": "D",
+          "replies": []
+        }
+      ],
+      "question_number": "265",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309984-exam-cis-csm-topic-1-question-265-discussion/",
+      "most_voted": "D",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "What are the types of units used in counting for entitlements in ServiceNow?",
+      "answers": [
+        "A. Incidents and Problems",
+        "B. Tasks and Projects",
+        "C. Cases and Hours",
+        "D. Requests and Changes"
+      ],
+      "comments": [
+        {
+          "content": "A. Final answer.",
+          "selected_answer": "A",
+          "replies": []
+        }
+      ],
+      "question_number": "269",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309987-exam-cis-csm-topic-1-question-269-discussion/",
+      "most_voted": "A",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "How are consumers related to households?",
+      "answers": [
+        "A. Household Member table",
+        "B. Location table",
+        "C. Household field on the Consumer record",
+        "D. Consumers are not related to Households"
+      ],
+      "comments": [
+        {
+          "content": "90% sure it's C. The scenario points directly to it.",
+          "selected_answer": "C",
+          "replies": []
+        }
+      ],
+      "question_number": "270",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309985-exam-cis-csm-topic-1-question-270-discussion/",
+      "most_voted": "C",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "Why would a customer service manager system administrator create want tabs on a dashboard?",
+      "answers": [
+        "A. Reports must be categorized by role on each dashboard",
+        "B. To better organize reports and widgets, and make it easier to share widgets",
+        "C. Reports must be categorized by type on each dashboard",
+        "D. There's a finite number of widgets allowed per dashboard"
+      ],
+      "comments": [
+        {
+          "content": "B is the textbook answer for this situation.",
+          "selected_answer": "B",
+          "replies": []
+        }
+      ],
+      "question_number": "271",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309983-exam-cis-csm-topic-1-question-271-discussion/",
+      "most_voted": "B",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "What action to be taken if the product has no configurable attributes?",
+      "answers": [
+        "A. Optimize data in the Install Base Item table",
+        "B. Create new child table for Install Base Item",
+        "C. Group into existing extended Install Base Item table",
+        "D. Store it in the baseline Install Base Item table"
+      ],
+      "comments": [
+        {
+          "content": "B. Final answer.",
+          "selected_answer": "B",
+          "replies": []
+        }
+      ],
+      "question_number": "274",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309986-exam-cis-csm-topic-1-question-274-discussion/",
+      "most_voted": "B",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "Which service catalogs are available in the base instance customer portals? (Choose two.)",
+      "answers": [
+        "A. Consumer Service",
+        "B. Customer Service",
+        "C. Partner Service",
+        "D. Product Service"
+      ],
+      "comments": [
+        {
+          "content": "Locked in on C. The other choices are clearly distractors.",
+          "selected_answer": "C",
+          "replies": []
+        }
+      ],
+      "question_number": "277",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309982-exam-cis-csm-topic-1-question-277-discussion/",
+      "most_voted": "C",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "What is included in an account relationship record? (Choose three.)",
+      "answers": [
+        "A. Primary contact",
+        "B. Parent/Child related records",
+        "C. The account relationship type that this relationship record is based on",
+        "D. A target account",
+        "E. A source account"
+      ],
+      "comments": [
+        {
+          "content": "Contacts and Related Records don't matter for Account Relationship",
+          "selected_answer": "CDE",
+          "replies": []
+        }
+      ],
+      "question_number": "278",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309769-exam-cis-csm-topic-1-question-278-discussion/",
+      "most_voted": "CDE",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "What attribute/field is employed to construct the hierarchy of Install Base Items in a system?",
+      "answers": [
+        "A. Parent Install Base Item",
+        "B. Configurable Attributes",
+        "C. Root Install Base Item",
+        "D. Child Install Base Item"
+      ],
+      "comments": [
+        {
+          "content": "Not entirely sure on this, but I'll take a shot with C.",
+          "selected_answer": "C",
+          "replies": []
+        }
+      ],
+      "question_number": "281",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309997-exam-cis-csm-topic-1-question-281-discussion/",
+      "most_voted": "C",
+      "images": {},
+      "error": null
+    },
+    {
+      "question": "What should be done if an attribute about an Install Base item is merely for informational purposes?",
+      "answers": [
+        "A. Include it in the entitlement details",
+        "B. Track it as an Install Base characteristic",
+        "C. Document it in the product manual",
+        "D. Create an Install Base custom field"
+      ],
+      "comments": [
+        {
+          "content": "This is a core concept for this certification. The answer has to be A.",
+          "selected_answer": "A",
+          "replies": []
+        }
+      ],
+      "question_number": "284",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/309979-exam-cis-csm-topic-1-question-284-discussion/",
+      "most_voted": "A",
+      "images": {},
+      "error": null
     }
   ],
   "update_stats": {
-    "new_count": 0,
+    "new_count": 20,
     "updated_count": 0,
     "skipped_count": 240,
-    "total_processed": 240
+    "total_processed": 260
   }
 }

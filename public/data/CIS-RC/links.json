@@ -1,5 +1,5 @@
 {
-  "page_num": 129,
+  "page_num": 131,
   "status": "complete",
   "links": [
     "/discussions/servicenow/view/93937-exam-cis-rc-topic-1-question-1-discussion/",
@@ -87,6 +87,7 @@
     "/discussions/servicenow/view/92157-exam-cis-rc-topic-1-question-83-discussion/",
     "/discussions/servicenow/view/95778-exam-cis-rc-topic-1-question-84-discussion/",
     "/discussions/servicenow/view/104609-exam-cis-rc-topic-1-question-85-discussion/",
+    "/discussions/servicenow/view/226751-exam-cis-rc-topic-1-question-86-discussion/",
     "/discussions/servicenow/view/104610-exam-cis-rc-topic-1-question-87-discussion/",
     "/discussions/servicenow/view/92159-exam-cis-rc-topic-1-question-88-discussion/",
     "/discussions/servicenow/view/100073-exam-cis-rc-topic-1-question-89-discussion/",
@@ -170,6 +171,7 @@
     "/discussions/servicenow/view/303918-exam-cis-rc-topic-1-question-176-discussion/",
     "/discussions/servicenow/view/305404-exam-cis-rc-topic-1-question-180-discussion/",
     "/discussions/servicenow/view/305405-exam-cis-rc-topic-1-question-182-discussion/",
+    "/discussions/servicenow/view/310240-exam-cis-rc-topic-1-question-183-discussion/",
     "/discussions/servicenow/view/303935-exam-cis-rc-topic-1-question-184-discussion/",
     "/discussions/servicenow/view/305350-exam-cis-rc-topic-1-question-188-discussion/",
     "/discussions/servicenow/view/305351-exam-cis-rc-topic-1-question-199-discussion/",
@@ -185,8 +187,8 @@
     "/discussions/servicenow/view/305372-exam-cis-rc-topic-1-question-227-discussion/",
     "/discussions/servicenow/view/303859-exam-cis-rc-topic-1-question-229-discussion/"
   ],
-  "collected_at": "2025-08-05T23:39:08.737769",
+  "collected_at": "2025-08-21T01:26:45.316310",
   "method": "servicenow_batch_collection",
   "exam_code": "CIS-RC",
-  "links_count": 182
+  "links_count": 184
 }

@@ -3047,6 +3047,27 @@
       "error": null
     },
     {
+      "question": "A control objective has been related to a risk statement and they've been scoped with the same entity type. What can we expect to occur?",
+      "answers": [
+        "A. Risks for this risk statement will be moved back into a Review state since there are new factors impacting risk likelihood.",
+        "B. A control for this control objective, with a matching entity, will be related to the registered risk for this risk statement as a mitigating control.",
+        "C. The control objective will be marked as compliant since it is mitigating the related risk statement.",
+        "D. Risk scores will automatically decrease for the risk statement's risks since there are now mitigating controls."
+      ],
+      "comments": [
+        {
+          "content": "Answer is B",
+          "selected_answer": "B",
+          "replies": []
+        }
+      ],
+      "question_number": "86",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/226751-exam-cis-rc-topic-1-question-86-discussion/",
+      "most_voted": "B",
+      "images": {},
+      "error": null
+    },
+    {
       "question": "Santa Clara Facility and Boston Facility are examples of what?",
       "answers": [
         "A. Entities",
@@ -5315,6 +5336,27 @@
       "error": null
     },
     {
+      "question": "What is associated with the control objective, that is active with the setting to create controls automatically enabled, to generate controls?",
+      "answers": [
+        "A. Citation",
+        "B. Entity Type",
+        "C. Indicator template",
+        "D. Policy"
+      ],
+      "comments": [
+        {
+          "content": "Entity Type",
+          "selected_answer": "B",
+          "replies": []
+        }
+      ],
+      "question_number": "183",
+      "link": "https://www.examtopics.com/discussions/servicenow/view/310240-exam-cis-rc-topic-1-question-183-discussion/",
+      "most_voted": "B",
+      "images": {},
+      "error": null
+    },
+    {
       "question": "What table is an implementer’s starting point to meet a customer requirement to generate a report related to a specific policy acknowledgement campaign?",
       "answers": [
         "A. sn_compliance_policy_acknowledgement_instance",
@@ -5618,9 +5660,9 @@
     }
   ],
   "update_stats": {
-    "new_count": 0,
+    "new_count": 2,
     "updated_count": 0,
     "skipped_count": 182,
-    "total_processed": 182
+    "total_processed": 184
   }
 }

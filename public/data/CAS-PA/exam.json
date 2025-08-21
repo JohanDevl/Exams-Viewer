@@ -1,6 +1,6 @@
 {
   "status": "complete",
-  "error": "",
+  "error": "Error: Request or parsing failed: Failed to get response",
   "questions": [
     {
       "question": "What option on the breakdown source record helps provide views into whether you need to create additional breakdowns or adjust data values?",
@@ -2191,7 +2191,7 @@
   "update_stats": {
     "new_count": 0,
     "updated_count": 0,
-    "skipped_count": 80,
+    "skipped_count": 59,
     "total_processed": 80
   }
 }

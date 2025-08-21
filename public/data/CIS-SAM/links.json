@@ -1,5 +1,5 @@
 {
-  "page_num": 129,
+  "page_num": 131,
   "status": "complete",
   "links": [
     "/discussions/servicenow/view/108973-exam-cis-sam-topic-1-question-1-discussion/",
@@ -196,7 +196,7 @@
     "/discussions/servicenow/view/305544-exam-cis-sam-topic-6-question-207-discussion/",
     "/discussions/servicenow/view/152901-exam-cis-sam-topic-6-question-209-discussion/"
   ],
-  "collected_at": "2025-08-05T23:39:08.737991",
+  "collected_at": "2025-08-21T01:26:45.316738",
   "method": "servicenow_batch_collection",
   "exam_code": "CIS-SAM",
   "links_count": 193

@@ -1,5 +1,5 @@
 {
-  "page_num": 129,
+  "page_num": 131,
   "status": "complete",
   "links": [
     "/discussions/servicenow/view/71003-exam-csa-topic-1-question-1-discussion/",
@@ -374,7 +374,7 @@
     "/discussions/servicenow/view/156800-exam-csa-topic-1-question-380-discussion/",
     "/discussions/servicenow/view/307179-exam-csa-topic-1-question-382-discussion/"
   ],
-  "collected_at": "2025-08-05T23:39:08.740343",
+  "collected_at": "2025-08-21T01:26:45.319122",
   "method": "servicenow_batch_collection",
   "exam_code": "CSA",
   "links_count": 371

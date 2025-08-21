@@ -1,5 +1,5 @@
 {
-  "status": "complete",
+  "status": "in progress",
   "error": "",
   "questions": [
     {
@@ -5180,7 +5180,7 @@
   "update_stats": {
     "new_count": 0,
     "updated_count": 0,
-    "skipped_count": 166,
-    "total_processed": 166
+    "skipped_count": 165,
+    "total_processed": 165
   }
 }

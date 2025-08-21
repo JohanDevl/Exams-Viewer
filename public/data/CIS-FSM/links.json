@@ -1,5 +1,5 @@
 {
-  "page_num": 129,
+  "page_num": 131,
   "status": "complete",
   "links": [
     "/discussions/servicenow/view/132001-exam-cis-fsm-topic-1-question-1-discussion/",
@@ -47,7 +47,7 @@
     "/discussions/servicenow/view/123061-exam-cis-fsm-topic-1-question-80-discussion/",
     "/discussions/servicenow/view/117244-exam-cis-fsm-topic-1-question-84-discussion/"
   ],
-  "collected_at": "2025-08-05T23:39:08.736438",
+  "collected_at": "2025-08-21T01:26:45.313206",
   "method": "servicenow_batch_collection",
   "exam_code": "CIS-FSM",
   "links_count": 44

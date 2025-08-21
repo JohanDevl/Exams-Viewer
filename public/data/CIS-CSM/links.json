@@ -1,5 +1,5 @@
 {
-  "page_num": 129,
+  "page_num": 131,
   "status": "complete",
   "links": [
     "/discussions/servicenow/view/91460-exam-cis-csm-topic-1-question-1-discussion/",
@@ -241,10 +241,30 @@
     "/discussions/servicenow/view/139186-exam-cis-csm-topic-1-question-239-discussion/",
     "/discussions/servicenow/view/168937-exam-cis-csm-topic-1-question-240-discussion/",
     "/discussions/servicenow/view/168938-exam-cis-csm-topic-1-question-241-discussion/",
-    "/discussions/servicenow/view/306429-exam-cis-csm-topic-1-question-246-discussion/"
+    "/discussions/servicenow/view/309993-exam-cis-csm-topic-1-question-244-discussion/",
+    "/discussions/servicenow/view/309988-exam-cis-csm-topic-1-question-245-discussion/",
+    "/discussions/servicenow/view/306429-exam-cis-csm-topic-1-question-246-discussion/",
+    "/discussions/servicenow/view/309980-exam-cis-csm-topic-1-question-249-discussion/",
+    "/discussions/servicenow/view/309991-exam-cis-csm-topic-1-question-250-discussion/",
+    "/discussions/servicenow/view/309992-exam-cis-csm-topic-1-question-251-discussion/",
+    "/discussions/servicenow/view/309996-exam-cis-csm-topic-1-question-252-discussion/",
+    "/discussions/servicenow/view/309995-exam-cis-csm-topic-1-question-254-discussion/",
+    "/discussions/servicenow/view/309990-exam-cis-csm-topic-1-question-256-discussion/",
+    "/discussions/servicenow/view/309989-exam-cis-csm-topic-1-question-257-discussion/",
+    "/discussions/servicenow/view/309981-exam-cis-csm-topic-1-question-259-discussion/",
+    "/discussions/servicenow/view/309994-exam-cis-csm-topic-1-question-261-discussion/",
+    "/discussions/servicenow/view/309984-exam-cis-csm-topic-1-question-265-discussion/",
+    "/discussions/servicenow/view/309987-exam-cis-csm-topic-1-question-269-discussion/",
+    "/discussions/servicenow/view/309985-exam-cis-csm-topic-1-question-270-discussion/",
+    "/discussions/servicenow/view/309983-exam-cis-csm-topic-1-question-271-discussion/",
+    "/discussions/servicenow/view/309986-exam-cis-csm-topic-1-question-274-discussion/",
+    "/discussions/servicenow/view/309982-exam-cis-csm-topic-1-question-277-discussion/",
+    "/discussions/servicenow/view/309769-exam-cis-csm-topic-1-question-278-discussion/",
+    "/discussions/servicenow/view/309997-exam-cis-csm-topic-1-question-281-discussion/",
+    "/discussions/servicenow/view/309979-exam-cis-csm-topic-1-question-284-discussion/"
   ],
-  "collected_at": "2025-08-05T23:39:08.735209",
+  "collected_at": "2025-08-21T01:26:45.311684",
   "method": "servicenow_batch_collection",
   "exam_code": "CIS-CSM",
-  "links_count": 240
+  "links_count": 260
 }

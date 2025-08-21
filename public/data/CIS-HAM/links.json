@@ -1,5 +1,5 @@
 {
-  "page_num": 129,
+  "page_num": 131,
   "status": "complete",
   "links": [
     "/discussions/servicenow/view/93173-exam-cis-ham-topic-1-question-1-discussion/",
@@ -118,6 +118,7 @@
     "/discussions/servicenow/view/115931-exam-cis-ham-topic-1-question-114-discussion/",
     "/discussions/servicenow/view/128967-exam-cis-ham-topic-1-question-115-discussion/",
     "/discussions/servicenow/view/115932-exam-cis-ham-topic-1-question-116-discussion/",
+    "/discussions/servicenow/view/309998-exam-cis-ham-topic-1-question-117-discussion/",
     "/discussions/servicenow/view/128969-exam-cis-ham-topic-1-question-118-discussion/",
     "/discussions/servicenow/view/115662-exam-cis-ham-topic-1-question-119-discussion/",
     "/discussions/servicenow/view/115661-exam-cis-ham-topic-1-question-120-discussion/",
@@ -170,6 +171,8 @@
     "/discussions/servicenow/view/138272-exam-cis-ham-topic-1-question-167-discussion/",
     "/discussions/servicenow/view/136485-exam-cis-ham-topic-1-question-168-discussion/",
     "/discussions/servicenow/view/136483-exam-cis-ham-topic-1-question-169-discussion/",
+    "/discussions/servicenow/view/309999-exam-cis-ham-topic-1-question-170-discussion/",
+    "/discussions/servicenow/view/310000-exam-cis-ham-topic-1-question-171-discussion/",
     "/discussions/servicenow/view/157577-exam-cis-ham-topic-1-question-172-discussion/",
     "/discussions/servicenow/view/157578-exam-cis-ham-topic-1-question-173-discussion/",
     "/discussions/servicenow/view/157582-exam-cis-ham-topic-1-question-174-discussion/",
@@ -177,14 +180,15 @@
     "/discussions/servicenow/view/157581-exam-cis-ham-topic-1-question-176-discussion/",
     "/discussions/servicenow/view/157580-exam-cis-ham-topic-1-question-177-discussion/",
     "/discussions/servicenow/view/157179-exam-cis-ham-topic-1-question-178-discussion/",
+    "/discussions/servicenow/view/310001-exam-cis-ham-topic-1-question-179-discussion/",
     "/discussions/servicenow/view/157180-exam-cis-ham-topic-1-question-180-discussion/",
     "/discussions/servicenow/view/157579-exam-cis-ham-topic-1-question-181-discussion/",
     "/discussions/servicenow/view/157181-exam-cis-ham-topic-1-question-182-discussion/",
     "/discussions/servicenow/view/157661-exam-cis-ham-topic-1-question-183-discussion/",
     "/discussions/servicenow/view/157104-exam-cis-ham-topic-1-question-184-discussion/"
   ],
-  "collected_at": "2025-08-05T23:39:08.736636",
+  "collected_at": "2025-08-21T01:26:45.314227",
   "method": "servicenow_batch_collection",
   "exam_code": "CIS-HAM",
-  "links_count": 180
+  "links_count": 184
 }
