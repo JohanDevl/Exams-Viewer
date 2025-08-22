@@ -680,6 +680,18 @@ export function QuestionDisplay({ question, questionIndex }: QuestionDisplayProp
         </CardContent>
       </Card>
 
+      {/* Data accuracy disclaimer */}
+      <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-900/20">
+        <CardContent className="pt-4 pb-4">
+          <div className="flex items-start gap-2">
+            <Flag className="h-4 w-4 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-orange-800 dark:text-orange-200">
+              <strong>Disclaimer:</strong> The displayed answers may contain errors. Please verify if something seems incorrect.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Explanation - invisible in active exam mode (maintains height) */}
       {question.explanation && (
         <Card className={cn(
