@@ -7,14 +7,14 @@ const getBasePath = () => {
   // Client-side detection
   if (typeof window !== 'undefined') {
     // Check if we're on GitHub Pages domain
-    if (window.location.hostname.endsWith('.github.io')) {
+    //if (window.location.hostname.endsWith('.github.io')) {
       // Extract repo name from pathname
       const pathParts = window.location.pathname.split('/').filter(Boolean);
       if (pathParts.length > 0) {
         return `/${pathParts[0]}`;
       }
-    }
-    return '';
+    //}
+    //return '';
   }
   
   // Server-side detection
