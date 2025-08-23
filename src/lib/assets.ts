@@ -8,12 +8,15 @@
 /**
  * Get the correct path for a data asset
  * @param path - The relative path (e.g., 'data/manifest.json' or '/data/manifest.json')
- * @returns The path, properly formatted for Next.js basePath handling
+ * @returns The path, properly formatted with basePath for fetch() calls
  */
 export const getAssetPath = (path: string): string => {
-  // Remove leading slash to make it relative - Next.js will handle basePath automatically
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  return `/${cleanPath}`;
+  
+  // Add basePath for fetch() calls - Next.js doesn't handle this automatically
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+  
+  return basePath ? `${basePath}/${cleanPath}` : `/${cleanPath}`;
 };
 
 /**
