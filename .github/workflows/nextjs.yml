@@ -31,19 +31,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
           submodules: recursive
-          
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 10
-          
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: 'pnpm'
-          
+          cache: "pnpm"
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
         id: pages
@@ -53,7 +54,7 @@ jobs:
           #
           # You may remove this line if you want to manage the configuration yourself.
           static_site_generator: next
-          
+
       - name: Restore cache
         uses: actions/cache@v4
         with:
@@ -64,15 +65,15 @@ jobs:
           # If source files changed but packages didn't, rebuild from a prior cache.
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
-            
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        
+
       - name: Build with Next.js
         run: pnpm build
         env:
           NEXT_PUBLIC_BASE_PATH: ${{ steps.pages.outputs.base_path }}
-        
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
