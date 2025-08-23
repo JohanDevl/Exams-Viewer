@@ -44,6 +44,7 @@ jobs:
           
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        id: pages
         with:
           # Automatically inject basePath in your Next.js configuration file and disable
           # server side image optimization (https://nextjs.org/docs/api-reference/next/image#unoptimized).
@@ -67,6 +68,8 @@ jobs:
         
       - name: Build with Next.js
         run: pnpm build
+        env:
+          NEXT_PUBLIC_BASE_PATH: ${{ steps.pages.outputs.base_path }}
         
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
