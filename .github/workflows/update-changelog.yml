@@ -23,6 +23,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           # Fetch full history to ensure we can push
           fetch-depth: 0
+          submodules: recursive
 
       - name: Configure Git
         run: |
