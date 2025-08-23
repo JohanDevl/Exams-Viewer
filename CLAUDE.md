@@ -46,9 +46,38 @@ NEXT_PUBLIC_BASE_PATH=/Exams-Viewer
 NEXT_PUBLIC_BASE_PATH=/my-custom-repo
 ```
 
+## Data Architecture with Submodule
+
+Starting from version 5.2.0, the exam data and scripts have been separated into an external repository for better maintainability and modularity.
+
+### Submodule Structure
+
+- **Data Repository**: `git@github.com:JohanDevl/Exams-Viewer-Data.git`
+- **Local Integration**: The submodule is integrated via symbolic links
+  - `public/data/` → `data-repo/data/` (exam questions and manifest)
+  - `scripts/` → `data-repo/scripts/` (Python and JavaScript utilities)
+
+### Submodule Management
+
+**Initialization (for new clones)**:
+```bash
+git submodule update --init --recursive
+```
+
+**Update data repository**:
+```bash
+git submodule update --remote data-repo
+git add data-repo && git commit -m "Update exam data submodule"
+```
+
+**Working with submodule**:
+- Exam data changes are committed to the data repository
+- Main repository tracks specific commits of the data repository
+- GitHub Actions automatically initialize submodules in CI/CD
+
 ## Data Management Scripts
 
-Python scripts are located in `/scripts/` for managing exam data:
+Python scripts are located in `/scripts/` (linked to submodule) for managing exam data:
 
 ### Batch Processing (Recommended)
 - **ServiceNow batch scraper**: `python3 scripts/servicenow_batch_scraper.py` - Optimized scraper for all ServiceNow exams with multi-level progress bars and detailed update summaries
@@ -76,7 +105,7 @@ After processing each exam, the scraper displays:
 ✅ EXAM-CODE: X questions updated successfully
 ```
 
-Requirements: Python 3.6+, `tqdm` library, write access to `public/data/` directory.
+Requirements: Python 3.6+, `tqdm` library, write access to submodule data directory (`data-repo/data/`).
 
 ## Architecture Overview
 
@@ -87,7 +116,7 @@ This is a modern Next.js 15 application with App Router for ServiceNow certifica
 - **Frontend**: Next.js 15 with React 19, TypeScript, Tailwind CSS
 - **State Management**: Zustand stores with persistence
 - **UI Framework**: Radix UI components with custom styling
-- **Data Storage**: Static JSON files in `/public/data/` with client-side processing
+- **Data Storage**: Static JSON files via submodule (`/public/data/` → `data-repo/data/`) with client-side processing
 
 ### Key Stores (Zustand)
 
