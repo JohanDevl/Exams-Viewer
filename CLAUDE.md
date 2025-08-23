@@ -11,6 +11,41 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Linting**: `npm run lint`
 - **Generate manifest**: `npm run generate-manifest` (updates exam catalog)
 
+## Environment Configuration
+
+### Base Path Configuration
+
+The application automatically detects the correct base path for deployment:
+
+- **`.github.io` domains**: Automatically uses the repository name from the URL path
+- **Custom domains**: Assumes root deployment unless explicitly configured
+- **Manual override**: Use `NEXT_PUBLIC_BASE_PATH` environment variable
+
+#### Environment Variables
+
+Copy `.env.example` to `.env.local` for local development:
+
+```bash
+cp .env.example .env.local
+```
+
+**Available variables:**
+- `NEXT_PUBLIC_BASE_PATH`: Override automatic base path detection
+  - Leave empty for root domain deployment (e.g., `johandev.com`)
+  - Set to `/repository-name` for subdirectory deployment (e.g., `/Exams-Viewer`)
+
+**Examples:**
+```bash
+# Root deployment on custom domain
+NEXT_PUBLIC_BASE_PATH=
+
+# Subdirectory deployment
+NEXT_PUBLIC_BASE_PATH=/Exams-Viewer
+
+# Custom repository name
+NEXT_PUBLIC_BASE_PATH=/my-custom-repo
+```
+
 ## Data Management Scripts
 
 Python scripts are located in `/scripts/` for managing exam data:
