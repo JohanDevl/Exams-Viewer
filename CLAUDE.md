@@ -53,10 +53,9 @@ Starting from version 5.2.0, the exam data and scripts have been separated into 
 ### Submodule Structure
 
 - **Data Repository**: `git@github.com:JohanDevl/Exams-Viewer-Data.git`
-- **Local Integration**: The submodule is integrated for data access
-  - `public/data/` → `data-repo/data/` (exam questions and manifest via symbolic link)
-  - `data-repo/scripts/` → Python scripts for data management (in submodule only)
-  - `scripts/generate-manifest.js` → JavaScript script for Next.js build (in main project)
+- **Local Integration**: The submodule is integrated via symbolic links
+  - `public/data/` → `data-repo/data/` (exam questions and manifest)
+  - `scripts/` → `data-repo/scripts/` (Python and JavaScript utilities)
 
 ### Submodule Management
 
@@ -78,21 +77,17 @@ git add data-repo && git commit -m "Update exam data submodule"
 
 ## Data Management Scripts
 
-### Script Organization
-- **Python scripts** (data management): Located in the submodule at `data-repo/scripts/`
-- **JavaScript script** (build process): Located in the main project at `scripts/generate-manifest.js`
-
-Python scripts for managing exam data (run from project root):
+Python scripts are located in `/scripts/` (linked to submodule) for managing exam data:
 
 ### Batch Processing (Recommended)
-- **ServiceNow batch scraper**: `python3 data-repo/scripts/servicenow_batch_scraper.py` - Optimized scraper for all ServiceNow exams with multi-level progress bars and detailed update summaries
-- **ServiceNow links only**: `python3 data-repo/scripts/servicenow_batch_scraper.py --links-only` - Collect links for all ServiceNow exams in single pass
-- **ServiceNow questions only**: `python3 data-repo/scripts/servicenow_batch_scraper.py --questions-only` - Process questions using pre-collected links
-- **Single exam**: `python3 data-repo/scripts/servicenow_batch_scraper.py --exam [EXAM_CODE]` - Process specific exam with progress tracking
+- **ServiceNow batch scraper**: `python3 scripts/servicenow_batch_scraper.py` - Optimized scraper for all ServiceNow exams with multi-level progress bars and detailed update summaries
+- **ServiceNow links only**: `python3 scripts/servicenow_batch_scraper.py --links-only` - Collect links for all ServiceNow exams in single pass
+- **ServiceNow questions only**: `python3 scripts/servicenow_batch_scraper.py --questions-only` - Process questions using pre-collected links
+- **Single exam**: `python3 scripts/servicenow_batch_scraper.py --exam [EXAM_CODE]` - Process specific exam with progress tracking
 
 ### Individual Scripts
-- **Update manifest**: `python3 data-repo/scripts/update_manifest.py` - Run after data changes
-- **Scrape exam**: `python3 data-repo/scripts/scraper.py [EXAM_CODE]` - Add/update specific exam with smart update detection
+- **Update manifest**: `python3 scripts/update_manifest.py` - Run after data changes
+- **Scrape exam**: `python3 scripts/scraper.py [EXAM_CODE]` - Add/update specific exam with smart update detection
 
 ### Progress Tracking Features
 - **Multi-level progress bars**: Main progress for overall workflow, sub-progress for individual phases
@@ -112,8 +107,6 @@ After processing each exam, the scraper displays:
 
 Requirements: Python 3.6+, `tqdm` library, write access to submodule data directory (`data-repo/data/`).
 
-**Note**: Python scripts are located in the submodule (`data-repo/scripts/`) but are executed from the main project root.
-
 ## Architecture Overview
 
 This is a modern Next.js 15 application with App Router for ServiceNow certification exam preparation.
@@ -124,7 +117,6 @@ This is a modern Next.js 15 application with App Router for ServiceNow certifica
 - **State Management**: Zustand stores with persistence
 - **UI Framework**: Radix UI components with custom styling
 - **Data Storage**: Static JSON files via submodule (`/public/data/` → `data-repo/data/`) with client-side processing
-- **Scripts**: Build scripts in main project (`scripts/`), data management scripts in submodule (`data-repo/scripts/`)
 
 ### Key Stores (Zustand)
 
