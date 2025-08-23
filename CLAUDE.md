@@ -323,12 +323,20 @@ Optimized touch interactions and input handling for mobile devices:
 
 ## Documentation
 
-Comprehensive documentation is available in the `/docs/` directory:
+Comprehensive documentation is available in the [Wiki](https://github.com/JohanDevl/Exams-Viewer/wiki):
 - All documentation has been updated to reflect the modern Next.js architecture
 - Complete API documentation with TypeScript interfaces
 - Component architecture and state management patterns
 - Performance optimizations and deployment guides
 - Development workflows and testing strategies
+
+### Wiki Architecture
+
+Starting from version 5.2.0, documentation is managed as a Git submodule:
+- **Wiki Repository**: `https://github.com/JohanDevl/Exams-Viewer.wiki.git`
+- **Local Integration**: The wiki is available in the `wiki/` directory as a submodule
+- **GitHub Integration**: Documentation is accessible via GitHub's wiki interface
+- **Version Control**: Independent versioning for documentation updates
 
 ## TypeScript Architecture
 

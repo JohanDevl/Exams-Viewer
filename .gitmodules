@@ -1,3 +1,6 @@
 [submodule "data-repo"]
 	path = data-repo
 	url = https://github.com/JohanDevl/Exams-Viewer-Data.git
+[submodule "wiki"]
+	path = wiki
+	url = https://github.com/JohanDevl/Exams-Viewer.wiki.git

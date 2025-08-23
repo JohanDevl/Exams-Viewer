@@ -346,7 +346,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **🛠️ Enhanced Python Scripts**: Automated manifest management and documentation
   - Automatic manifest updates after individual exam scraping (`scraper.py`)
   - Comprehensive CLI interface for scraper with advanced options (`--force-rescan`, `--force-update`, `--rapid`)
-  - Complete scripts documentation in `docs/scripts/` with detailed usage guides
+  - Complete scripts documentation in [Wiki](https://github.com/JohanDevl/Exams-Viewer/wiki) with detailed usage guides
   - Cleaned up temporary Python files and organized documentation structure
   - Enhanced error handling and fallback mechanisms for manifest updates
 

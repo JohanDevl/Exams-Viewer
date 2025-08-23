@@ -151,7 +151,7 @@ Exams-Viewer/
 │   ├── scraper.py                    # Individual exam scraping
 │   ├── servicenow_batch_scraper.py   # Optimized batch scraping
 │   └── update_manifest.py            # Manifest generation
-└── 📚 docs/                         # Documentation
+└── 📚 wiki/                         # Documentation (Git submodule)
 ```
 
 ### Technology Stack
@@ -245,19 +245,19 @@ python3 scripts/update_manifest.py
 
 ### User Guides
 
-- **[📅 Installation Guide](docs/INSTALLATION.md)** - Setup and deployment
-- **[📆 Usage Guide](docs/USAGE.md)** - Complete feature walkthrough
-- **[🎯 Features Overview](docs/FEATURES.md)** - Detailed feature descriptions
+- **[📅 Installation Guide](https://github.com/JohanDevl/Exams-Viewer/wiki/Installation)** - Setup and deployment
+- **[📆 Usage Guide](https://github.com/JohanDevl/Exams-Viewer/wiki/Usage)** - Complete feature walkthrough
+- **[🎯 Features Overview](https://github.com/JohanDevl/Exams-Viewer/wiki/Features)** - Detailed feature descriptions
 
 ### Technical Documentation
 
-- **[🔧 Development Guide](docs/DEVELOPMENT.md)** - Developer setup and contribution
-- **[📈 Statistics System](docs/STATISTICS.md)** - Analytics implementation
-- **[⌨️ Navigation System](docs/NAVIGATION.md)** - Keyboard shortcuts and navigation
-- **[📈 Performance Guide](docs/PERFORMANCE_OPTIMIZATIONS.md)** - Optimization techniques
-- **[📄 API Reference](docs/API.md)** - Technical API documentation
-- **[🐍 Python Scripts Guide](docs/python-scripts.md)** - Complete scripts documentation
-- **[📊 Progress Tracking System](docs/progress-tracking-system.md)** - Multi-level progress bars technical guide
+- **[🔧 Development Guide](https://github.com/JohanDevl/Exams-Viewer/wiki/Development)** - Developer setup and contribution
+- **[📈 Statistics System](https://github.com/JohanDevl/Exams-Viewer/wiki/Statistics)** - Analytics implementation
+- **[⌨️ Navigation System](https://github.com/JohanDevl/Exams-Viewer/wiki/Navigation)** - Keyboard shortcuts and navigation
+- **[📈 Performance Guide](https://github.com/JohanDevl/Exams-Viewer/wiki/Performance-Optimizations)** - Optimization techniques
+- **[📄 API Reference](https://github.com/JohanDevl/Exams-Viewer/wiki/API)** - Technical API documentation
+- **[🐍 Python Scripts Guide](https://github.com/JohanDevl/Exams-Viewer/wiki/python-scripts)** - Complete scripts documentation
+- **[📊 Progress Tracking System](https://github.com/JohanDevl/Exams-Viewer/wiki/progress-tracking-system)** - Multi-level progress bars technical guide
 
 ## ⚖️ Legal & Ethics
 
@@ -304,13 +304,13 @@ pip install -r requirements.txt
 npm run dev
 ```
 
-See [Development Guide](docs/DEVELOPMENT.md) for detailed contribution guidelines.
+See [Development Guide](https://github.com/JohanDevl/Exams-Viewer/wiki/Development) for detailed contribution guidelines.
 
 ## 🆘 Support
 
 ### Getting Help
 
-1. **📚 Check Documentation**: Browse the comprehensive docs in `/docs/`
+1. **📚 Check Documentation**: Browse the comprehensive [Wiki Documentation](https://github.com/JohanDevl/Exams-Viewer/wiki)
 2. **🔍 Search Issues**: Look through [existing issues](../../issues)
 3. **🆕 Create Issue**: Submit a [new issue](../../issues/new) with details
 4. **💬 Discussions**: Join [GitHub Discussions](../../discussions)
